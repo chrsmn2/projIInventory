@@ -8,11 +8,19 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::orderBy('created_at', 'desc')->get();
+        $search = $request->input('search', '');
+        $perPage = $request->per_page ?? 10;
 
-        return view('admin.categories.index', compact('categories'));
+        $categories = Category::when($search, function ($query) use ($search) {
+        $query->where('name', 'like', "%{$search}%");
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage)
+            ->withQueryString();
+
+        return view('admin.categories.index', compact('categories', 'search', 'perPage'));
     }
 
     public function create()
@@ -27,7 +35,19 @@ class CategoryController extends Controller
             'description' => 'nullable|string',
         ]);
 
+        // AUTO GENERATE CODE
+        $prefix = strtoupper(substr($request->name, 0, 3));
+
+        $last = Category::where('code', 'like', $prefix.'%')
+            ->orderBy('code', 'desc')
+            ->first();
+
+        $number = $last ? intval(substr($last->code, 3)) + 1 : 1;
+
+        $code = $prefix . str_pad($number, 3, '0', STR_PAD_LEFT);
+
         Category::create([
+            'code' => $code,
             'name' => $request->name,
             'description' => $request->description,
         ]);
@@ -38,27 +58,28 @@ class CategoryController extends Controller
     }
 
 
+    public function update(Request $request, Category $category)
+    {
+         $request->validate([
+            'name' => 'required|string|max:255',
+            'description'     => 'nullable|string',
+        ]);
+
+        // CODE TIDAK DIUPDATE
+        $category->update([
+            'name' => $request->name,
+            'description'     => $request->description,
+        ]);
+
+        return redirect()->route('admin.categories.index')
+            ->with('success', 'Category updated successfully');
+    }
+
     public function edit(Category $category)
     {
         return view('admin.categories.edit', compact('category'));
     }
 
-    public function update(Request $request, Category $category)
-    {
-        $request->validate([
-            'name' => 'required|string|max:100',
-            'description' => 'nullable|string',
-        ]);
-
-        $category->update([
-            'name' => $request->name,
-            'description' => $request->description,
-        ]);
-
-        return redirect()
-            ->route('admin.categories.index')
-            ->with('success', 'Category updated successfully');
-    }
     public function destroy(Category $category)
     {
         $category->delete();

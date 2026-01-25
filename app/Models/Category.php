@@ -9,13 +9,15 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $table = 'categories'; // Nama tabel di database
+    protected $table = 'categories';
+
     protected $fillable = [
+        'code',
         'name',
-        'description'
+        'description',
     ];
 
-    // Relasi: 1 Category bisa punya banyak Item
+    // Relasi
     public function items()
     {
         return $this->hasMany(Item::class);

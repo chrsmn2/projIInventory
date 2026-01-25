@@ -1,5 +1,5 @@
 <!-- filepath: resources/views/admin/suppliers/edit.blade.php -->
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Edit Supplier')
 
@@ -11,6 +11,15 @@
     <form action="{{ route('admin.suppliers.update', $supplier->id) }}" method="POST">
         @csrf
         @method('PUT')
+
+        <div>
+            <label class="text-sm font-semibold text-gray-800">Supplier Code</label>
+            <input type="text" name="supplier_code"
+                   value="{{ $supplier->supplier_code }}"
+                   class="w-full mt-1 rounded-lg border border-gray-300 text-gray-900
+                          focus:ring-blue-500 focus:border-blue-500 bg-gray-100"
+                   disabled>
+        </div>
 
         <div class="mb-4">
             <label class="block text-sm font-medium mb-2">Supplier Name</label>

@@ -11,10 +11,10 @@ class IncomingItem extends Model
 
     protected $table = 'incoming_items';
     protected $fillable = [
+        'code',
         'admin_id', 
         'incoming_date',
-        'supplier',  // TAMBAHKAN INI
-        'source', 
+        'supplier_id',
         'notes'
     ];
 
@@ -32,5 +32,11 @@ class IncomingItem extends Model
     public function admin()
     {
         return $this->belongsTo(User::class, 'admin_id');
+    }
+
+    // Relasi ke Supplier
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class, 'supplier_id');
     }
 }

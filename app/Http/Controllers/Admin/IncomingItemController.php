@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\IncomingItem;
 use App\Models\IncomingItemDetail;
 use App\Models\Item;
+use App\Models\Unit;
 use App\Models\Supplier;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -15,142 +16,209 @@ class IncomingItemController extends Controller
 {
     public function index(Request $request)
     {
-        $search  = $request->input('search');
+        $search = $request->input('search', '');
         $perPage = $request->input('per_page', 10);
 
-        $incoming = IncomingItem::with('admin', 'details.item')
-            ->when($search, function ($q) use ($search) {
-                $q->where('supplier', 'like', "%{$search}%")
-                  ->orWhereHas('details.item', function ($q2) use ($search) {
-                      $q2->where('item_name', 'like', "%{$search}%");
-                  });
+        $incoming = IncomingItem::with([
+                'admin',
+                'supplier',
+                'details.item',
+                'details.unit'
+            ])
+            ->when($search, function ($query) use ($search) {
+                $query->whereHas('supplier', function ($q) use ($search) {
+                    $q->where('supplier_name', 'like', "%{$search}%");
+                });
             })
-            ->latest()
-            ->paginate($perPage);
+            ->orderBy('incoming_date', 'desc')
+            ->paginate($perPage)
+            ->withQueryString();
 
         return view('admin.incoming.index', compact('incoming', 'search', 'perPage'));
     }
 
+    
+
     public function create()
     {
-        $items = Item::all();
-        $suppliers = Supplier::all(); // TAMBAHKAN INI
-        return view('admin.incoming.create', compact('items', 'suppliers'));
+        $items = Item::orderBy('item_name')->get();
+        $units = Unit::orderBy('name')->get(); 
+        $suppliers = Supplier::all();
+
+        return view('admin.incoming.create', compact('items', 'units', 'suppliers'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'incoming_date' => 'required|date',
-            'suppliers'     => 'required|exists:suppliers,id',
-            'item_id.*'     => 'required|exists:items,id',
-            'quantity.*'    => 'required|integer|min:1',
+        $validated = $request->validate([
+            'incoming_date'    => 'required|date',
+            'supplier_id'      => 'required|exists:suppliers,id',
+            'notes'            => 'nullable|string',
+            'items'            => 'required|array|min:1',
+            'items.*.item_id'  => 'required|exists:items,id',
+            'items.*.unit_id'  => 'required|exists:units,id',
+            'items.*.quantity' => 'required|integer|min:1',
         ]);
+            
+        try {
+            DB::transaction(function () use ($validated) {
+                // Generate unique code
+                $code = $this->generateIncomingCode();
 
-        // AMBIL NAMA SUPPLIER BERDASARKAN ID
-        $supplier = Supplier::findOrFail($request->suppliers);
+                $incoming = IncomingItem::create([
+                    'admin_id'      => Auth::id(),
+                    'incoming_date' => $validated['incoming_date'],
+                    'supplier_id'   => $validated['supplier_id'],
+                    'notes'         => $validated['notes'] ?? null,
+                    'code'          => $code, // Menyimpan kode yang dihasilkan
+                ]);
 
-        $incoming = IncomingItem::create([
-            'admin_id'      => Auth::id(),
-            'incoming_date' => $request->incoming_date,
-            'supplier'      => $supplier->supplier_name,
-            'source'        => $supplier->supplier_name, // TAMBAHKAN INI
-            'notes'         => $request->notes,
-        ]);
+                if ($incoming === null) {
+                    throw new \Exception('Gagal menyimpan data incoming item.');
+                }  
 
-        foreach ($request->item_id as $i => $itemId) {
-            $qty = $request->quantity[$i];
+                foreach ($validated['items'] as $item) {
+                    if (empty($item['unit_id'])) {
+                        throw new \Exception('Unit belum dipilih untuk salah satu item.');
+                    }
 
-            IncomingItemDetail::create([
-                'incoming_item_id' => $incoming->id,
-                'item_id'          => $itemId,
-                'quantity'         => $qty,
-                'note'             => $request->note[$i] ?? null,
-            ]);
+                    $store_item_detail = IncomingItemDetail::create([
+                        'incoming_item_id' => $incoming->id,
+                        'item_id'          => $item['item_id'],
+                        'unit_id'          => $item['unit_id'],
+                        'quantity'         => $item['quantity'],
+                    ]);
 
-            Item::where('id', $itemId)->increment('stock', $qty);
+                    if ($store_item_detail === null) {
+                        throw new \Exception('Gagal menyimpan detail item masuk.');
+                    }
+
+                    // Gunakan 'stock' bukan 'quantity'
+                    Item::where('id', $item['item_id'])
+                        ->increment('stock', $item['quantity']);
+                }
+            });
+
+            return redirect()->route('admin.incoming.index')
+                ->with('success', '✓ Incoming items berhasil ditambahkan');
+
+        } catch (\Exception $e) {
+            // Tambahkan logging untuk debugging
+            \Log::error('Error adding incoming item: ' . $e->getMessage());
+            
+            return redirect()->back()
+                ->with('error', '✗ Gagal menambahkan incoming: '.$e->getMessage())
+                ->withInput();
         }
+    }
 
-        return redirect()->route('admin.incoming.index')
-            ->with('success', 'Incoming items berhasil ditambahkan');
+    private function generateIncomingCode()
+    {
+        // Menghasilkan kode unik, misalnya: IN-2026-0001
+        $latest = IncomingItem::orderBy('created_at', 'desc')->first();
+        $number = $latest ? intval(substr($latest->code, -3)) + 1 : 1; // Ambil nomor terakhir dan tambahkan 1
+        return 'IN-' . str_pad($number, 3, '0', STR_PAD_LEFT); // Format kode
+    }
+
+
+    public function show(IncomingItem $incoming)
+    {
+        $incoming->load([
+            'admin',
+            'supplier',
+            'details.item.category',
+            'details.unit' 
+        ]);
+
+        return view('admin.incoming.show', compact('incoming'));
     }
 
     public function edit(IncomingItem $incoming)
     {
-        $incoming->load('details.item');
+        $incoming->load(['details.item', 'details.unit']);
         $items = Item::orderBy('item_name')->get();
-        $suppliers = Supplier::all(); // TAMBAHKAN INI
-        $usedItemIds = $incoming->details->pluck('item_id')->toArray();
+        $units = Unit::orderBy('name')->get(); // ✅
+        $suppliers = Supplier::all();
 
-        return view('admin.incoming.edit', compact('incoming', 'items', 'suppliers', 'usedItemIds'));
+        return view('admin.incoming.edit', compact('incoming', 'items', 'units', 'suppliers'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, IncomingItem $incoming)
     {
-        $request->validate([
-            'incoming_date' => 'required|date',
-            'suppliers'     => 'required|exists:suppliers,id',
-            'item_id'       => 'required|array|min:1',
-            'item_id.*'     => 'required|exists:items,id',
-            'quantity'      => 'required|array|min:1',
-            'quantity.*'    => 'required|integer|min:1',
+        $validated = $request->validate([
+            'incoming_date'        => 'required|date',
+            'supplier_id'          => 'required|exists:suppliers,id',
+            'notes'                => 'nullable|string',
+            'items'                => 'required|array|min:1',
+            'items.*.item_id'      => 'required|exists:items,id',
+            'items.*.unit_id'      => 'required|exists:units,id',
+            'items.*.quantity'     => 'required|integer|min:1',
         ]);
 
-        if (count($request->item_id) !== count(array_unique($request->item_id))) {
-            return back()->withErrors('Item tidak boleh duplikat');
-        }
+        try {
+            DB::transaction(function () use ($validated, $incoming) {
+                // Rollback stock lama
+                foreach ($incoming->details as $detail) {
+                    Item::where('id', $detail->item_id)
+                        ->decrement('stock', $detail->quantity);
+                }
 
-        DB::transaction(function () use ($request, $id) {
-            $incoming = IncomingItem::with('details')->findOrFail($id);
-
-            foreach ($incoming->details as $detail) {
-                Item::where('id', $detail->item_id)
-                    ->decrement('stock', $detail->quantity);
-            }
-
-            $supplier = Supplier::findOrFail($request->suppliers);
-
-            $incoming->update([
-                'incoming_date' => $request->incoming_date,
-                'suppliers'      => $supplier->supplier_id,
-                'notes'         => $request->notes ?? null,
-            ]);
-
-            $incoming->details()->delete();
-
-            foreach ($request->item_id as $index => $itemId) {
-                $qty  = $request->quantity[$index];
-                $note = $request->note[$index] ?? null;
-
-                IncomingItemDetail::create([
-                    'incoming_item_id' => $incoming->id,
-                    'item_id'          => $itemId,
-                    'quantity'         => $qty,
-                    'note'             => $note,
+                // Update incoming item
+                $incoming->update([
+                    'incoming_date' => $validated['incoming_date'],
+                    'supplier_id'   => $validated['supplier_id'],
+                    'notes'         => $validated['notes'] ?? null,
                 ]);
 
-                Item::where('id', $itemId)->increment('stock', $qty);
-            }
-        });
+                // Hapus detail lama
+                $incoming->details()->delete();
 
-        return redirect()
-            ->route('admin.incoming.index')
-            ->with('success', 'Incoming berhasil diperbarui');
+                // Tambah detail baru
+                foreach ($validated['items'] as $item) {
+                    IncomingItemDetail::create([
+                        'incoming_item_id' => $incoming->id,
+                        'item_id'          => $item['item_id'],
+                        'unit_id'          => $item['unit_id'],
+                        'quantity'         => $item['quantity'],
+                    ]);
+
+                    // Tambah stock baru
+                    Item::where('id', $item['item_id'])
+                        ->increment('stock', $item['quantity']);
+                }
+            });
+
+            return redirect()->route('admin.incoming.index')
+                ->with('success', '✓ Incoming item berhasil diupdate');
+
+        } catch (\Exception $e) {
+            \Log::error('Error updating incoming item: ' . $e->getMessage());
+            
+            return redirect()->back()
+                ->with('error', '✗ Gagal mengupdate incoming: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     public function destroy(IncomingItem $incoming)
     {
-        DB::transaction(function () use ($incoming) {
-            foreach ($incoming->details as $detail) {
-                Item::where('id', $detail->item_id)
-                    ->decrement('stock', $detail->quantity);
-            }
+        try {
+            DB::transaction(function () use ($incoming) {
+                foreach ($incoming->details as $detail) {
+                    // Kurangi stock saat menghapus
+                    Item::where('id', $detail->item_id)
+                        ->decrement('stock', $detail->quantity);
+                }
 
-            $incoming->details()->delete();
-            $incoming->delete();
-        });
+                $incoming->details()->delete();
+                $incoming->delete();
+            });
 
-        return redirect()->route('admin.incoming.index')
-            ->with('success', 'Incoming items berhasil dihapus');
+            return redirect()->route('admin.incoming.index')
+                ->with('success', '✓ Incoming items berhasil dihapus');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', '✗ Gagal menghapus incoming: ' . $e->getMessage());
+        }
     }
 }

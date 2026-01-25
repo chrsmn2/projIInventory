@@ -13,19 +13,14 @@ class Requester extends Model
 
     protected $fillable = [
         'requester_name',
-        'department',
-        'contact_phone',
+        'departement_id',
         'contact_email',
+        'contact_phone',
         'status',
     ];
 
-    protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
-
-    public function loans()
+    public function departement()
     {
-        return $this->hasMany(Loan::class, 'borrower_id');
+        return $this->belongsTo(Departement::class, 'departement_id', 'id');
     }
 }

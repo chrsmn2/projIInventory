@@ -3,133 +3,194 @@
 @section('title', 'Edit Outgoing Item')
 
 @section('content')
-<div class="bg-white rounded-xl shadow border border-gray-200">
+<div class="max-w-4xl mx-auto bg-white rounded-xl shadow border border-gray-200">
 
-    <!-- HEADER -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between
-                gap-4 px-6 py-4
-                bg-gradient-to-r from-orange-600 to-orange-700 rounded-t-xl">
+    <div class="px-6 py-4 bg-gradient-to-r from-gray-700 to-gray-800 rounded-t-xl flex justify-between items-center">
+        <h2 class="text-xl font-bold text-black">Edit Outgoing Item</h2>
+        <a href="{{ route('admin.outgoing.index') }}" class="text-gray-300 hover:text-white text-sm">&larr; Back to List</a>
+    </div>
 
-        <div>
-            <h2 class="text-xl font-semibold text-white">Edit Outgoing Item</h2>
-            <p class="text-sm text-orange-100">
-                Update outgoing item information
-            </p>
+    @if ($errors->any())
+        <div class="p-4 m-4 bg-red-100 border border-red-400 text-red-700 rounded">
+            <strong>Validation Errors:</strong>
+            <ul class="list-disc list-inside mt-2">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <form action="{{ route('admin.outgoing.update', $outgoing->id) }}" method="POST" class="p-6">
+        @csrf
+        @method('PUT')
+
+        <div class="space-y-6">
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Transaction Code</label>
+                    <input type="text" value="{{ $outgoing->code }}" disabled
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 font-mono font-bold">
+                </div>
+
+                <div>
+                    <label for="outgoing_date" class="block text-sm font-bold text-gray-700 mb-2">Outgoing Date <span class="text-red-500">*</span></label>
+                    <input type="date" id="outgoing_date" name="outgoing_date" value="{{ old('outgoing_date', $outgoing->outgoing_date->format('Y-m-d')) }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none @error('outgoing_date') border-red-500 @enderror" required>
+                    @error('outgoing_date') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+            </div>
+
+            <div>
+                <label for="departement_id" class="block text-sm font-bold text-gray-700 mb-2">Department <span class="text-red-500">*</span></label>
+                <select id="departement_id" name="departement_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none @error('departement_id') border-red-500 @enderror" required>
+                    <option value="" disabled>-- Select Department --</option>
+                    @foreach($departements as $dept)
+                        <option value="{{ $dept->id }}" {{ old('departement_id', $outgoing->departement_id) == $dept->id ? 'selected' : '' }}>
+                            {{ $dept->departement_name }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('departement_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-3">Items <span class="text-red-500">*</span></label>
+                <div class="overflow-x-auto border rounded-lg">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2 text-left font-bold text-gray-700">Item Name</th>
+                                <th class="px-4 py-2 text-left font-bold text-gray-700">Condition</th>
+                                <th class="px-4 py-2 text-center font-bold text-gray-700">Quantity</th>
+                                <th class="px-4 py-2 text-left font-bold text-gray-700">Unit</th>
+                                <th class="px-4 py-2 text-center font-bold text-gray-700">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="items-container" class="divide-y">
+                            @foreach($outgoing->details as $index => $detail)
+                                <tr class="item-row hover:bg-gray-50">
+                                    <td class="px-4 py-2">
+                                        <select name="items[{{ $index }}][item_id]" class="item-select w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" required>
+                                            <option value="" disabled>-- Select Item --</option>
+                                            @foreach($items as $item)
+                                                <option value="{{ $item->id }}" data-unit="{{ $item->unit?->name ?? 'N/A' }}" {{ $detail->item_id == $item->id ? 'selected' : '' }}>
+                                                    {{ $item->item_name }} (Stock: {{ $item->stock }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        <select name="items[{{ $index }}][condition]" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" required>
+                                            <option value="normal" {{ $detail->condition == 'normal' ? 'selected' : '' }}>Normal</option>
+                                            <option value="damaged" {{ $detail->condition == 'damaged' ? 'selected' : '' }}>Damaged</option>
+                                        </select>
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        <input type="number" name="items[{{ $index }}][quantity]" value="{{ $detail->quantity }}" min="1" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none text-center" required>
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        <input type="text" class="unit-display w-full px-3 py-2 border rounded-lg text-sm bg-gray-50 text-gray-500" readonly placeholder="Unit">
+                                    </td>
+                                    <td class="px-4 py-2 text-center">
+                                        <button type="button" onclick="removeItem(this)" class="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition">Remove</button>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <button type="button" onclick="addItem()" class="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-bold">+ Add Item</button>
+            </div>
+
+            <div>
+                <label for="notes" class="block text-sm font-bold text-gray-700 mb-2">Notes</label>
+                <textarea id="notes" name="notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Enter notes...">{{ old('notes', $outgoing->notes) }}</textarea>
+            </div>
         </div>
 
-        <a href="{{ route('admin.outgoing.show', $outgoing->id) }}"
-           class="inline-flex items-center gap-2
-                  px-4 py-2 bg-gray-200 text-gray-700
-                  rounded-lg font-semibold text-sm
-                  hover:bg-gray-300 transition">
-            &larr; Back
-        </a>
-
-    </div>
-
-    <!-- FORM -->
-    <div class="p-6">
-        <form action="{{ route('admin.outgoing.update', $outgoing->id) }}" method="POST">
-            @csrf
-            @method('PUT')
-
-            <!-- GENERAL INFO -->
-            <div class="grid md:grid-cols-3 gap-4 mb-6">
-                <div>
-                    <label class="block text-sm font-medium mb-1">Date</label>
-                    <input type="date" name="outgoing_date" value="{{ old('outgoing_date', $outgoing->outgoing_date) }}"
-                           class="w-full px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-orange-200"
-                           required>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-1">Destination</label>
-                    <input type="text" name="destination" value="{{ old('destination', $outgoing->destination) }}"
-                           placeholder="Department / Location"
-                           class="w-full px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-orange-200"
-                           required>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-1">Status</label>
-                    <select name="status" class="w-full px-3 py-2 border rounded-lg text-sm text-black"
-                            required>
-                        <option value="pending" {{ $outgoing->status == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="completed" {{ $outgoing->status == 'completed' ? 'selected' : '' }}>Completed</option>
-                        <option value="cancelled" {{ $outgoing->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- NOTES -->
-            <div class="mb-6">
-                <label class="block text-sm font-medium mb-1">Notes</label>
-                <textarea name="notes" rows="3"
-                          placeholder="Optional notes"
-                          class="w-full px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-orange-200">{{ old('notes', $outgoing->notes) }}</textarea>
-            </div>
-
-            <!-- ITEMS TABLE -->
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Items</h3>
-
-            <div class="overflow-x-auto border border-gray-200 rounded-lg mb-6">
-                <table class="w-full text-sm">
-                    <thead class="bg-gray-100 text-gray-700 uppercase text-xs">
-                        <tr>
-                            <th class="px-4 py-3 text-center w-10">No</th>
-                            <th class="px-4 py-3">Item Name</th>
-                            <th class="px-4 py-3 text-center">Item Code</th>
-                            <th class="px-4 py-3 text-center">Condition</th>
-                            <th class="px-4 py-3 text-center">Quantity</th>
-                        </tr>
-                    </thead>
-
-                    <tbody class="divide-y divide-gray-200">
-                        @forelse ($outgoing->details as $index => $detail)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-3 text-center font-semibold">{{ $index + 1 }}</td>
-                            <td class="px-4 py-3 font-semibold text-gray-900">
-                                {{ $detail->item->item_name }}
-                            </td>
-                            <td class="px-4 py-3 text-center">
-                                <span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded">
-                                    {{ $detail->item->item_code }}
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 text-center">
-                                <span class="px-2 py-1 rounded text-xs font-bold
-                                    @if($detail->condition == 'normal') bg-green-100 text-green-700
-                                    @elseif($detail->condition == 'damaged') bg-red-100 text-red-700
-                                    @else bg-gray-200 text-gray-700 @endif">
-                                    {{ ucfirst($detail->condition) }}
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 text-center font-semibold">{{ $detail->quantity }}</td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="5" class="px-4 py-6 text-center text-gray-500">
-                                No items found
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- BUTTONS -->
-            <div class="flex gap-3">
-                <button type="submit" class="px-6 py-2 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700">
-                    Update
-                </button>
-                <a href="{{ route('admin.outgoing.show', $outgoing->id) }}"
-                   class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-400">
-                    Cancel
-                </a>
-            </div>
-        </form>
-    </div>
-
+        <div class="mt-8 flex gap-4 border-t pt-6">
+            <button type="submit" class="px-6 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition">
+                ✓ Update Outgoing
+            </button>
+            <a href="{{ route('admin.outgoing.show', $outgoing->id) }}" class="px-6 py-2 bg-gray-100 text-gray-600 font-bold rounded-lg hover:bg-gray-200 transition">
+                ✕ Cancel
+            </a>
+        </div>
+    </form>
 </div>
 
+<script>
+let itemCount = {{ $outgoing->details->count() }};
+
+function updateUnitDisplay(selectElement) {
+    const row = selectElement.closest('tr');
+    const unitDisplay = row.querySelector('.unit-display');
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    
+    if (selectedOption && selectedOption.value) {
+        const unit = selectedOption.getAttribute('data-unit');
+        unitDisplay.value = unit;
+    } else {
+        unitDisplay.value = '';
+    }
+}
+
+function addItem() {
+    const container = document.getElementById('items-container');
+    const newRow = document.createElement('tr');
+    newRow.className = 'item-row hover:bg-gray-50';
+    newRow.innerHTML = `
+        <td class="px-4 py-2">
+            <select name="items[${itemCount}][item_id]" class="item-select w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" required>
+                <option value="" disabled selected>-- Select Item --</option>
+                @foreach($items as $item)
+                    <option value="{{ $item->id }}" data-unit="{{ $item->unit?->name ?? 'N/A' }}">
+                        {{ $item->item_name }} (Stock: {{ $item->stock }})
+                    </option>
+                @endforeach
+            </select>
+        </td>
+        <td class="px-4 py-2">
+            <select name="items[${itemCount}][condition]" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" required>
+                <option value="normal">Normal</option>
+                <option value="damaged">Damaged</option>
+            </select>
+        </td>
+        <td class="px-4 py-2">
+            <input type="number" name="items[${itemCount}][quantity]" min="1" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none text-center" required>
+        </td>
+        <td class="px-4 py-2">
+            <input type="text" class="unit-display w-full px-3 py-2 border rounded-lg text-sm bg-gray-50 text-gray-500" readonly placeholder="Unit">
+        </td>
+        <td class="px-4 py-2 text-center">
+            <button type="button" onclick="removeItem(this)" class="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition">Remove</button>
+        </td>
+    `;
+    container.appendChild(newRow);
+    
+    newRow.querySelector('select.item-select').addEventListener('change', function() {
+        updateUnitDisplay(this);
+    });
+    
+    itemCount++;
+}
+
+function removeItem(button) {
+    if (document.querySelectorAll('.item-row').length > 1) {
+        button.closest('tr').remove();
+    } else {
+        alert('At least one item is required.');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('select.item-select').forEach(select => {
+        updateUnitDisplay(select);
+        select.addEventListener('change', function() {
+            updateUnitDisplay(this);
+        });
+    });
+});
+</script>
 @endsection

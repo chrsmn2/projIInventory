@@ -2,19 +2,24 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\DepartementController;
 use App\Http\Controllers\Admin\ItemController;
+use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\IncomingItemController;
 use App\Http\Controllers\Admin\OutgoingItemController;
 use App\Http\Controllers\Admin\LoanController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\RequesterController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Supervisor\DashboardController;
 use App\Http\Controllers\Supervisor\LoanApprovalController;
 use App\Http\Controllers\Supervisor\StockController;
 use App\Http\Controllers\Supervisor\LoanMonitorController;
 use App\Http\Controllers\Supervisor\ReportController as SupervisorReportController;
+use App\Http\Controllers\Supervisor\ProfileController as SupervisorProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,20 +58,18 @@ Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-
-        // Dashboard
-        Route::get('/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
         // Master Data
         Route::resource('categories', CategoryController::class);
+        Route::resource('units', UnitController::class);
         Route::resource('items', ItemController::class);
         Route::resource('suppliers', SupplierController::class);
         Route::resource('requesters', RequesterController::class);
+        Route::resource('departement', DepartementController::class);
 
         // Transactions
-        Route::resource('incoming', IncomingItemController::class)->except(['show']);
+        Route::resource('incoming', IncomingItemController::class);
         Route::resource('outgoing', OutgoingItemController::class);
         Route::resource('loans', LoanController::class);
 
@@ -81,6 +84,12 @@ Route::middleware(['auth', 'role:admin'])
             ->name('reports.stock');
         Route::get('reports/loan', [ReportController::class, 'loan'])
             ->name('reports.loan');
+
+        // Profile
+        Route::get('/profile', [AdminProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
+        Route::patch('/profile/password', [AdminProfileController::class, 'updatePassword'])->name('profile.update-password');
+        Route::delete('/profile', [AdminProfileController::class, 'destroy'])->name('profile.destroy');   
     });
 
 /*
@@ -94,6 +103,12 @@ Route::middleware(['auth', 'role:supervisor'])
     ->group(function () {
         // Dashboard
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        // Profile
+        Route::get('/profile', [SupervisorProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [SupervisorProfileController::class, 'update'])->name('profile.update');
+        Route::patch('/profile/password', [SupervisorProfileController::class, 'updatePassword'])->name('profile.update-password');
+        Route::delete('/profile', [SupervisorProfileController::class, 'destroy'])->name('profile.destroy');
 
         // Loan Approvals
         Route::get('loan-approvals', [LoanApprovalController::class, 'index'])->name('loan-approvals.index');

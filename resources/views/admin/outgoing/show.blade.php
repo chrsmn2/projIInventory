@@ -8,17 +8,17 @@
     <!-- HEADER -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between
                 gap-4 px-6 py-4
-                bg-gradient-to-r from-orange-600 to-orange-700 rounded-t-xl">
+                bg-gradient-to-r from-gray-700 to-gray-800 rounded-t-xl">
 
         <div>
-            <h2 class="text-xl font-semibold text-white">Outgoing Item Details</h2>
-            <p class="text-sm text-orange-100">
+            <h2 class="text-xl font-semibold text-black">Outgoing Item Details</h2>
+            <p class="text-sm text-gray-500">
                 View detailed information about this outgoing transaction
             </p>
         </div>
 
         <div class="flex gap-2">
-            @if($outgoing->status === 'pending')
+           <!-- @if($outgoing->status === 'pending')-->
             <a href="{{ route('admin.outgoing.edit', $outgoing->id) }}"
                class="inline-flex items-center gap-2
                       px-4 py-2 bg-yellow-500 text-white
@@ -46,13 +46,20 @@
         <div class="grid md:grid-cols-2 gap-6 mb-8">
 
             <div>
-                <p class="text-xs text-gray-500 uppercase font-semibold mb-1">Outgoing Date</p>
+                <p class="text-xs text-gray-500 uppercase font-semibold mb-1">Transaction Code</p>
                 <p class="text-lg font-semibold text-gray-900">
-                    {{ \Carbon\Carbon::parse($outgoing->outgoing_date)->format('d/m/Y') }}
+                    {{ $outgoing->code }}
                 </p>
             </div>
 
             <div>
+                <p class="text-xs text-gray-500 uppercase font-semibold mb-1">Outgoing Date</p>
+                <p class="text-lg font-semibold text-gray-900">
+                    {{ $outgoing->outgoing_date->format('d/m/Y') }}
+                </p>
+            </div>
+
+            <!--<div>
                 <p class="text-xs text-gray-500 uppercase font-semibold mb-1">Status</p>
                 <p>
                     <span class="px-4 py-1 rounded-full text-sm font-bold
@@ -62,6 +69,13 @@
                         @else bg-gray-200 text-gray-700 @endif">
                         {{ ucfirst($outgoing->status) }}
                     </span>
+                </p>
+            </div>-->
+
+            <div>
+                <p class="text-xs text-gray-500 uppercase font-semibold mb-1">Department</p>
+                <p class="text-lg font-semibold text-gray-900">
+                    {{ $outgoing->departement?->departement_name ?? '-' }}
                 </p>
             </div>
 
@@ -76,13 +90,6 @@
                 <p class="text-xs text-gray-500 uppercase font-semibold mb-1">Supervisor</p>
                 <p class="text-lg font-semibold text-gray-900">
                     {{ $outgoing->supervisor->name ?? '-' }}
-                </p>
-            </div>
-
-            <div class="md:col-span-2">
-                <p class="text-xs text-gray-500 uppercase font-semibold mb-1">Destination</p>
-                <p class="text-lg font-semibold text-gray-900">
-                    {{ $outgoing->destination }}
                 </p>
             </div>
 
@@ -105,6 +112,7 @@
                         <th class="px-4 py-3 text-center w-10">No</th>
                         <th class="px-4 py-3">Item Name</th>
                         <th class="px-4 py-3 text-center">Item Code</th>
+                        <th class="px-4 py-3 text-center">Unit</th>
                         <th class="px-4 py-3 text-center">Condition</th>
                         <th class="px-4 py-3 text-center">Quantity</th>
                     </tr>
@@ -122,6 +130,9 @@
                                 {{ $detail->item->item_code }}
                             </span>
                         </td>
+                        <td class="px-4 py-3 text-center font-semibold">
+                            {{ $detail->unit ?? '-' }}
+                        </td>
                         <td class="px-4 py-3 text-center">
                             <span class="px-2 py-1 rounded text-xs font-bold
                                 @if($detail->condition == 'normal') bg-green-100 text-green-700
@@ -134,7 +145,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-4 py-6 text-center text-gray-500">
+                        <td colspan="6" class="px-4 py-6 text-center text-gray-500">
                             No items found
                         </td>
                     </tr>
@@ -148,3 +159,4 @@
 </div>
 
 @endsection
+

@@ -9,7 +9,7 @@
     <!-- HEADER -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between
                 gap-4 px-6 py-4
-                bg-gradient-to-r from-blue-600 to-blue-700 rounded-t-xl">
+                bg-gradient-to-r from-gray-700 to-gray-800 rounded-t-xl">
 
         <div>
             <h2 class="text-xl font-semibold text-white">Loan Report</h2>
@@ -73,7 +73,7 @@
                     <td class="px-6 py-3 text-gray-700">{{ $loop->iteration + ($loans->currentPage() - 1) * $loans->perPage() }}</td>
 
                     <td class="px-6 py-3 font-semibold text-gray-900">
-                        <a href="{{ route('admin.loans.show', $loan->id) }}" class="text-blue-600 hover:underline">
+                        <a href="{{ route('admin.loans.show', $loan->id) }}" class="text-gray-700 hover:underline">
                             {{ $loan->loan_code }}
                         </a>
                     </td>
@@ -175,3 +175,4 @@
 </style>
 
 @endsection
+

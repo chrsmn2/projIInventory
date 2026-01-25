@@ -10,7 +10,17 @@ class OutgoingItem extends Model
     use HasFactory;
 
     protected $table = 'outgoing_items';
-    protected $fillable = ['admin_id', 'supervisor_id', 'outgoing_date', 'destination', 'status', 'notes'];
+    protected $fillable = [
+        'code', 
+        'admin_id', 
+        'supervisor_id', 
+        'outgoing_date', 
+        'departement_id', 
+        'notes'];
+
+    protected $casts = [
+        'outgoing_date' => 'date',
+    ];
 
     public function details()
     {
@@ -25,5 +35,10 @@ class OutgoingItem extends Model
     public function supervisor()
     {
         return $this->belongsTo(User::class, 'supervisor_id');
+    }
+
+    public function departement()
+    {
+        return $this->belongsTo(Departement::class, 'departement_id');
     }
 }

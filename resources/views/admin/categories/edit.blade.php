@@ -20,10 +20,19 @@
         @method('PUT')
 
         <div>
+            <label class="text-sm font-semibold text-gray-800">Code Categories</label>
+            <input type="text" name="code"
+                   value="{{ $category->code }}"
+                   class="w-full mt-1 rounded-lg border border-gray-300 text-gray-900
+                          focus:ring-blue-500 focus:border-blue-500 bg-gray-100"
+                   disabled>
+        </div>
+
+        <div>
             <label class="text-sm font-semibold text-gray-800">Category Name</label>
             <input type="text" name="name"
                    value="{{ $category->name }}"
-                   class="w-full mt-1 rounded-lg border-gray-300 text-gray-900
+                   class="w-full mt-1 rounded-lg border border-gray-300 text-gray-900
                           focus:ring-blue-500 focus:border-blue-500"
                    required>
         </div>
@@ -31,7 +40,7 @@
         <div>
             <label class="text-sm font-semibold text-gray-800">Description</label>
             <textarea name="description" rows="4"
-                      class="w-full mt-1 rounded-lg border-gray-300 text-gray-900
+                      class="w-full mt-1 rounded-lg border border-gray-300 text-gray-900
                              focus:ring-blue-500 focus:border-blue-500">{{ $category->description }}</textarea>
         </div>
 
@@ -52,3 +61,4 @@
 </div>
 
 @endsection
+

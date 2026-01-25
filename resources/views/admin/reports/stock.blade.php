@@ -13,7 +13,7 @@
 
         <div>
             <h2 class="text-xl font-semibold text-white">Stock Report</h2>
-            <p class="text-sm text-green-100">
+            <p class="text-sm text-blue-100">
                 Current inventory stock levels and analysis
             </p>
         </div>
@@ -71,7 +71,7 @@
         
         <!-- Total Items -->
         <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-            <p class="text-sm text-blue-600 font-semibold mb-1">Total Items</p>
+            <p class="text-sm text-gray-700 font-semibold mb-1">Total Items</p>
             <p class="text-3xl font-bold text-blue-700">{{ $totalItems }}</p>
         </div>
 
@@ -125,7 +125,7 @@
                     </td>
 
                     <td class="px-6 py-3 font-semibold text-gray-900">
-                        <a href="{{ route('admin.items.show', $item->id) }}" class="text-blue-600 hover:underline">
+                        <a href="{{ route('admin.items.show', $item->id) }}" class="text-gray-700 hover:underline">
                             {{ $item->item_name }}
                         </a>
                     </td>
@@ -265,3 +265,4 @@
 </style>
 
 @endsection
+

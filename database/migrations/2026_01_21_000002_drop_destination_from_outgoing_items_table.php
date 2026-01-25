@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('incoming_items', function (Blueprint $table) {
-            $table->dropColumn('source');
+        Schema::table('outgoing_items', function (Blueprint $table) {
+            if (Schema::hasColumn('outgoing_items', 'destination')) {
+                $table->dropColumn('destination');
+            }
         });
     }
 
@@ -21,8 +23,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('incoming_items', function (Blueprint $table) {
-            $table->string('source')->nullable();
+        Schema::table('outgoing_items', function (Blueprint $table) {
+            $table->string('destination')->nullable();
         });
     }
 };

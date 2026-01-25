@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('item_code')->unique();  
             $table->string('item_name');            
             $table->foreignId('category_id')->constrained('categories')->cascadeOnDelete(); // Category relation
-            $table->integer('stock')->default(0);   
+            $table->integer('stock')->default(0);
             $table->integer('min_stock')->default(0); 
             $table->enum('condition',['normal','damaged','lost'])->default('normal'); // Condition
             $table->timestamps();

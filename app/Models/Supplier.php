@@ -9,6 +9,7 @@ class Supplier extends Model
     protected $table = 'suppliers';
 
     protected $fillable = [
+        'supplier_code',
         'supplier_name',
         'contact_phone',
         'contact_email',
@@ -24,5 +25,9 @@ class Supplier extends Model
     public function incomings()
     {
         return $this->hasMany(IncomingItem::class, 'supplier_id');
+    }
+        public function departement()
+    {
+        return $this->belongsTo(Departement::class, 'departement_id', 'id');
     }
 }

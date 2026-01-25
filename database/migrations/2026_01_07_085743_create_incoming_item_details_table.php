@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('incoming_item_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('incoming_item_id')->constrained('incoming_items')->cascadeOnDelete();
-            $table->foreignId('item_id')->constrained('items')->cascadeOnDelete();
+            $table->foreignId('incoming_item_id')->constrained('incoming_items', 'id')->cascadeOnDelete();
+            $table->foreignId('item_id')->constrained('items', 'id')->cascadeOnDelete();
             $table->integer('quantity');
-            $table->text('notes')->nullable();
+            $table->string('note')->nullable();
             $table->timestamps();
         });
     }

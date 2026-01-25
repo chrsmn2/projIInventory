@@ -28,60 +28,75 @@ class ItemController extends Controller
     public function create()
     {
         $categories = Category::all();
-        return view('admin.items.create', compact('categories'));
+        $units = \App\Models\Unit::all();
+        return view('admin.items.create', compact('categories', 'units'));
     }
 
     public function store(Request $request)
-{
-    $request->validate([
-        'item_name'   => 'required|string|max:255',
-        'category_id' => 'required|exists:categories,id',
-        'condition'   => 'required|in:normal,damaged',
-        'description' => 'nullable|string',
-    ]);
+    {
+        $validated = $request->validate([
+            'item_name'   => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'unit_id'     => 'required|exists:units,id',
+            'condition'   => 'required|in:Good,Fair,Poor',
+            'min_stock'   => 'required|integer|min:0',
+            'description' => 'nullable|string',
+        ]);
 
-    // Generate item code
-    $lastItem = Item::latest('id')->first();
-    $nextNumber = $lastItem ? $lastItem->id + 1 : 1;
-    $itemCode = 'ITM-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        // Get category untuk prefix code
+        $category = Category::findOrFail($validated['category_id']);
+        $categoryCode = $category->code;
 
-    Item::create([
-        'item_code'   => $itemCode,
-        'item_name'   => $request->item_name, // ⬅️ INI KUNCI
-        'category_id' => $request->category_id,
-        'condition'   => $request->condition,
-        'stock'       => 0, // default
-        'description' => $request->description,
-    ]);
+        // Auto generate code: CATCODE-ITM-001
+        $prefix = $categoryCode . '-ITM-';
 
-    return redirect()
-        ->route('admin.items.index')
-        ->with('success', 'Item berhasil ditambahkan');
-}
+        $last = Item::where('item_code', 'like', $prefix.'%')
+            ->orderBy('item_code', 'desc')
+            ->first();
 
+        $number = $last ? intval(substr($last->item_code, strlen($prefix))) + 1 : 1;
+        $code = $prefix . str_pad($number, 3, '0', STR_PAD_LEFT);
 
+        Item::create([
+            'item_code'       => $code,
+            'item_name'       => $validated['item_name'],
+            'category_id'     => $validated['category_id'],
+            'unit_id'         => $validated['unit_id'],
+            'condition'       => $validated['condition'],
+            'min_stock'       => $validated['min_stock'],
+            'stock'           => 0,
+            'description'     => $validated['description'],
+        ]);
+
+        return redirect()->route('admin.items.index')
+            ->with('success', 'Item berhasil ditambahkan');
+    }
 
     public function edit(Item $item) {
-    return view('admin.items.edit', [
-        'item' => $item,
-        'categories' => Category::all()
-        ]);
+        $categories = Category::all();
+        $units = \App\Models\Unit::all();
+        return view('admin.items.edit', compact('item', 'categories', 'units'));
     }
 
     public function update(Request $request, Item $item)
     {
         $validated = $request->validate([
-            'item_name' => 'required|string|max:255',
+            'item_name'   => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'condition' => 'required|in:normal,damaged',
+            'unit_id'     => 'required|exists:units,id',
+            'condition'   => 'required|in:Good,Fair,Poor',
+            'min_stock'   => 'required|integer|min:0',
             'description' => 'nullable|string',
         ]);
 
+        // 🔒 Code dan Stock TIDAK BISA diubah
         $item->update([
-        'item_name'   => $request->item_name,
-        'category_id' => $request->category_id,
-        'condition'   => $request->condition,
-        'description' => $request->description,
+            'item_name'       => $validated['item_name'],
+            'category_id'     => $validated['category_id'],
+            'unit_id'         => $validated['unit_id'],
+            'condition'       => $validated['condition'],
+            'min_stock'       => $validated['min_stock'],
+            'description'     => $validated['description'],
         ]);
 
         return redirect()

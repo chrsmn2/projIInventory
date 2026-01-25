@@ -9,11 +9,11 @@
 
     <!-- HEADER -->
 <div class="flex items-center justify-between px-6 py-4 rounded-t-xl
-                bg-gradient-to-r from-blue-500 to-blue-600">
+                bg-gradient-to-r from-gray-700 to-gray-800">
 
     <div>
-        <h2 class="text-xl font-semibold text-white">Items</h2>
-        <p class="text-sm text-indigo-100">
+        <h2 class="text-xl font-semibold text-black">Items</h2>
+        <p class="text-sm text-gray-500">
             Master data inventory items (stock is read-only)
         </p>
     </div>
@@ -76,13 +76,17 @@
 
             <thead class="bg-gray-100 text-gray-700 uppercase text-xs">
                 <tr>
-                    <th class="px-4 py-3 w-12">No</th>
-                    <th class="px-4 py-3">Item Name</th>
-                    <th class="px-4 py-3">Category</th>
+                    <th class="px-4 py-3 text-left">No</th>
+                    <th class="px-4 py-3 text-left">Item Code</th>
+                    <th class="px-4 py-3 text-left">Item Name</th>
+                    <th class="px-4 py-3 text-left">Category</th>
                     <th class="px-4 py-3 text-center">Condition</th>
-                    <th class="px-4 py-3">Description</th>
+                    <th class="px-4 py-3 text-left">Description</th>
+                    <th class="px-4 py-3 text-center">Min</th>
                     <th class="px-4 py-3 text-center">Stock</th>
-                    <th class="px-4 py-3 text-center w-40">Action</th>
+                    <th class="px-4 py-3 text-left">Unit</th>
+                    <th class="px-4 py-3 text-center">Action</th>
+
                 </tr>
             </thead>
 
@@ -93,6 +97,11 @@
                 <!-- NO -->
                 <td class="px-4 py-3 text-center">
                     {{ $items->firstItem() + $loop->index }}
+                </td>
+
+                <!-- ITEM CODE-->
+                <td class="px-4 py-3 font-semibold text-gray-800">
+                    {{ $item->item_code }}
                 </td>
 
                 <!-- ITEM NAME -->
@@ -120,14 +129,30 @@
                     {{ $item->description ?? '-' }}
                 </td>
 
-                <!-- STOCK (READ ONLY) -->
-                <td class="px-4 py-3 text-center font-bold">
+                <!-- MINIMUM STOCK -->
+                <td class="px-4 py-3 text-center font-bold">            
                     <span class="px-3 py-1 rounded-full text-xs
-                        {{ $item->stock > 10
+                        {{ $item->stock >= $item->min_stock
                             ? 'bg-blue-100 text-blue-700'
                             : 'bg-orange-100 text-orange-700' }}">
+                        {{ $item->min_stock }}
+                    </span>
+                </td>
+
+                <!-- STOCK (READ ONLY - BUSINESS RULE BASED) -->
+                <td class="px-4 py-3 text-center font-bold">
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold
+                        {{ $item->stock >= $item->min_stock
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-red-100 text-red-700' }}">
                         {{ $item->stock }}
                     </span>
+                </td>
+
+
+                <!-- UNITS -->
+                <td class="px-6 py-3 text-gray-600">
+                    {{ $item->unit->name ?? '-' }}
                 </td>
 
                 <!-- ACTION -->
@@ -143,30 +168,29 @@
                         </a>
 
                         <!-- DELETE (SAFE MODE) -->
-                        @if ($item->loanDetails()->exists())
-                            <button
-                                disabled
-                                title="Item already used in transaction"
-                                class="px-3 py-1.5 text-xs font-semibold
-                                    bg-gray-300 text-gray-500
-                                    rounded cursor-not-allowed">
-                                Delete
-                            </button>
-                        @else
-                            <form action="{{ route('admin.items.destroy', $item) }}"
-                                method="POST"
-                                onsubmit="return confirm('Delete this item?')">
-                                @csrf
-                                @method('DELETE')
+                        @if ($item->stock > 0 || $item->loanDetails()->exists())
+    <button
+        disabled
+        title="Item sudah memiliki stock / transaksi"
+        class="px-3 py-1.5 text-xs font-semibold
+               bg-gray-300 text-gray-500
+               rounded cursor-not-allowed">
+        Delete
+    </button>
+@else
+    <form action="{{ route('admin.items.destroy', $item) }}"
+          method="POST"
+          onsubmit="return confirm('Delete this item?')">
+        @csrf
+        @method('DELETE')
+        <button class="px-3 py-1.5 text-xs font-semibold
+                       bg-red-600 text-white
+                       rounded hover:bg-red-700">
+            Delete
+        </button>
+    </form>
+@endif
 
-                                <button
-                                    class="px-3 py-1.5 text-xs font-semibold
-                                        bg-red-600 text-white
-                                        rounded hover:bg-red-700 transition">
-                                    Delete
-                                </button>
-                            </form>
-                        @endif
 
                     </div>
                 </td>
@@ -174,7 +198,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="7"
+                <td colspan="8"
                     class="px-6 py-10 text-center text-gray-400 italic">
                     No items available
                 </td>
@@ -228,3 +252,4 @@
 </div>
 
 @endsection
+

@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('incoming_items', function (Blueprint $table) {
-            $table->string('supplier')->nullable()->after('admin_id');
+        Schema::create('departement', function (Blueprint $table) {
+            $table->id();
+            $table->string('departement_name')->unique();
+            $table->boolean('is_active')->default(true);
+            $table->string('description')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -21,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('incoming_items', function (Blueprint $table) {
-            $table->dropColumn('supplier');
-        });
+        Schema::dropIfExists('departement');
     }
 };

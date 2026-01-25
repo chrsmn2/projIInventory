@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Suppliers')
 
@@ -9,11 +9,11 @@
     <!-- HEADER -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between
                 gap-4 px-6 py-4
-                bg-gradient-to-r from-blue-600 to-blue-700">
+                bg-gradient-to-r from-gray-700 to-gray-800">
 
         <div>
-            <h2 class="text-xl font-semibold text-white">Suppliers / Vendors</h2>
-            <p class="text-sm text-blue-100">
+            <h2 class="text-xl font-semibold text-black">Suppliers / Vendors</h2>
+            <p class="text-sm text-gray-500">
                 Manage all supplier and vendor information
             </p>
         </div>
@@ -70,7 +70,8 @@
             <thead class="bg-gray-100 text-gray-700 uppercase text-xs">
                 <tr>
                     <th class="px-4 py-3 w-12 text-center border-b">No</th>
-                    <th class="px-4 py-3 text-left border-b">Supplier Name</th>
+                    <th class="px-4 py-3 text-left border-b">Supplier Code</th>
+                    <th class="px-4 py-3 text-left border-b">Vendors</th>
                     <th class="px-4 py-3 text-left border-b">Phone</th>
                     <th class="px-4 py-3 text-left border-b">Email</th>
                     <th class="px-4 py-3 text-left border-b">Address</th>
@@ -86,9 +87,12 @@
                         {{ ($suppliers->currentPage() - 1) * $suppliers->perPage() + $loop->iteration }}
                     </td>
                     <td class="px-4 py-3 font-semibold text-gray-800">
+                        {{ $supplier->supplier_code }}
+                    </td>
+                    <td class="px-4 py-3 font-semibold text-gray-800">
                         {{ $supplier->supplier_name }}
                     </td>
-                    <td class="px-4 py-3 text-blue-600">
+                    <td class="px-4 py-3 text-gray-700">
                         {{ $supplier->contact_phone }}
                     </td>
                     <td class="px-4 py-3 text-gray-600 font-medium">
@@ -106,21 +110,23 @@
                         </span>
                     </td>
                     <td class="px-4 py-3">
-                        <div class="flex justify-center gap-2">
-                            <a href="{{ route('admin.suppliers.edit', $supplier->id) }}"
-                               class="px-3 py-1.5 text-xs font-semibold bg-blue-100 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition">
-                                Edit
-                            </a>
-                            <form action="{{ route('admin.suppliers.destroy', $supplier->id) }}"
-                                  method="POST"
-                                  onsubmit="return confirm('Delete this supplier?');">
-                                @csrf @method('DELETE')
-                                <button class="px-3 py-1.5 text-xs font-semibold bg-red-100 text-red-600 rounded hover:bg-red-600 hover:text-white transition">
-                                    Delete
-                                </button>
-                            </form>
-                        </div>
-                    </td>
+                                <div class="flex justify-center gap-2">
+                                    <a href="{{ route('admin.suppliers.edit', $supplier->id) }}"
+                                    class="px-3 py-1.5 text-xs font-semibold bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                                        Update
+                                    </a>
+
+                                    <form action="{{ route('admin.suppliers.destroy', $supplier->id) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('Delete this supplier?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="px-3 py-1.5 text-xs font-semibold bg-red-600 text-white rounded hover:bg-red-700 transition">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
                 </tr>
                 @empty
                 <tr>
@@ -155,3 +161,4 @@
 </div>
 
 @endsection
+

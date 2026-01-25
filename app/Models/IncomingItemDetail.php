@@ -2,21 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class IncomingItemDetail extends Model
 {
-    use HasFactory;
-
     protected $table = 'incoming_item_details';
+
     protected $fillable = [
-        'incoming_item_id', 
-        'item_id', 
-        'quantity', 
-        'notes'
+        'incoming_item_id',
+        'item_id',
+        'quantity',
+        'unit_id',
+        'notes',
     ];
-    public function incomingItem()
+
+    public function incoming()
     {
         return $this->belongsTo(IncomingItem::class, 'incoming_item_id');
     }
@@ -24,5 +24,10 @@ class IncomingItemDetail extends Model
     public function item()
     {
         return $this->belongsTo(Item::class, 'item_id');
+    }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class, 'unit_id');
     }
 }

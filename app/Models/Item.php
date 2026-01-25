@@ -11,18 +11,26 @@ class Item extends Model
 
     protected $table = 'items';
     protected $fillable = [
-    'item_code',
-    'item_name',
-    'category_id',
-    'condition',
-    'stock',
-    'description',
-];
+        'item_code',
+        'item_name',
+        'category_id',
+        'condition',
+        'min_stock',
+        'stock',
+        'unit_id',
+        'description',
+    ];
 
     // Relasi: Item milik satu Category
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    // Relasi: Item memiliki satu Unit
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class);
     }
 
     // Relasi ke transaksi detail

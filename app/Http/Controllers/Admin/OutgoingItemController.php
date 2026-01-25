@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\OutgoingItem;
 use App\Models\OutgoingItemDetail;
 use App\Models\Item;
+use App\Models\Departement;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -14,135 +15,199 @@ class OutgoingItemController extends Controller
 {
     public function index(Request $request)
     {
-        $search  = $request->input('search');
+        $search = $request->input('search', '');
         $perPage = $request->input('per_page', 10);
 
-        $outgoing = OutgoingItem::with('admin', 'supervisor', 'details.item')
-            ->when($search, function ($q) use ($search) {
-                $q->where('destination', 'like', "%{$search}%")
-                  ->orWhereHas('details.item', function ($q2) use ($search) {
-                      $q2->where('item_name', 'like', "%{$search}%");
-                  });
+        $outgoing = OutgoingItem::with(['admin', 'supervisor', 'departement', 'details.item'])
+            ->when($search, function ($query) use ($search) {
+                $query->where('code', 'like', "%{$search}%")
+                      ->orWhereHas('departement', function ($q) use ($search) {
+                          $q->where('departement_name', 'like', "%{$search}%");
+                      });
             })
-            ->latest()
-            ->paginate($perPage);
+            ->orderBy('outgoing_date', 'desc')
+            ->paginate($perPage)
+            ->withQueryString();
 
-        return view('admin.outgoing.index', compact(
-            'outgoing', 'search', 'perPage'
-        ));
+        return view('admin.outgoing.index', compact('outgoing', 'search', 'perPage'));
     }
 
     public function create()
     {
-        $items = Item::all();
-        return view('admin.outgoing.create', compact('items'));
+        // REVISI: Menggunakan kolom 'stock' sesuai database Anda
+        $items = Item::with('unit')->where('stock', '>', 0)->get();
+        $departements = Departement::where('is_active', 1)->get();
+        
+        return view('admin.outgoing.create', compact('items', 'departements'));
+    }
+
+    private function generateOutgoingCode()
+    {
+         // Menghasilkan kode unik, misalnya: OUT-2026-0001
+        $latest = OutgoingItem::orderBy('created_at', 'desc')->first();
+        $number = $latest ? intval(substr($latest->code, -3)) + 1 : 1; // Ambil nomor terakhir dan tambahkan 1
+        return 'OUT-' . str_pad($number, 3, '0', STR_PAD_LEFT); // Format kode
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'outgoing_date' => 'required|date',
-            'destination'   => 'required|string',
-            'item_id.*'     => 'required|exists:items,id',
-            'quantity.*'    => 'required|integer|min:1',
-            'notes'         => 'nullable|string',
+        $validated = $request->validate([
+            'outgoing_date'   => 'required|date',
+            'departement_id'  => 'required|exists:departement,id',
+            'notes'           => 'nullable|string',
+            'items'           => 'required|array|min:1',
+            'items.*.item_id' => 'required|exists:items,id',
+            'items.*.quantity'=> 'required|integer|min:1',
+            'items.*.condition'=> 'nullable|in:normal,damaged',
+        ], [
+            'items.required' => 'Wajib menambahkan minimal satu barang.',
+            'items.*.item_id.required' => 'Barang harus dipilih.',
+            'items.*.quantity.min' => 'Jumlah barang minimal 1.',
         ]);
 
-        DB::beginTransaction();
+        // Aktifkan dd($validated) di bawah ini jika ingin cek data yang masuk sebelum diproses
+        // dd($validated);
 
         try {
-            $outgoing = OutgoingItem::create([
-                'admin_id'      => Auth::id(),
-                'outgoing_date' => $request->outgoing_date,
-                'destination'   => $request->destination,
-                'status'        => 'pending',
-                'notes'         => $request->notes,
-            ]);
+            DB::transaction(function () use ($validated) {
+                $code = $this->generateOutgoingCode();
 
-            foreach ($request->item_id as $i => $itemId) {
-                $qty = $request->quantity[$i];
-                $item = Item::find($itemId);
-
-                if ($item->stock < $qty) {
-                    DB::rollBack();
-                    return back()->with('error', "Insufficient stock for {$item->item_name}");
-                }
-
-                OutgoingItemDetail::create([
-                    'outgoing_item_id' => $outgoing->id,
-                    'item_id'          => $itemId,
-                    'quantity'         => $qty,
-                    'condition'        => $request->input("condition.{$i}", 'normal'),
+                $outgoing = OutgoingItem::create([
+                    'code'           => $code,
+                    'admin_id'       => Auth::id(),
+                    'supervisor_id'  => Auth::id(),
+                    'outgoing_date'  => $validated['outgoing_date'],
+                    'departement_id' => $validated['departement_id'],
+                    'notes'          => $validated['notes'] ?? null,
                 ]);
 
-                // Update stock
-                $item->decrement('stock', $qty);
-            }
+                foreach ($validated['items'] as $itemData) {
+                    $item = Item::lockForUpdate()->findOrFail($itemData['item_id']);
 
-            DB::commit();
+                    if ($item->stock < $itemData['quantity']) {
+                        throw new \Exception("Stok {$item->item_name} tidak mencukupi. Sisa stok: {$item->stock}");
+                    }
+
+                    $item->decrement('stock', $itemData['quantity']);
+
+                    OutgoingItemDetail::create([
+                        'outgoing_item_id' => $outgoing->id,
+                        'item_id'          => $itemData['item_id'],
+                        'quantity'         => $itemData['quantity'],
+                        'unit_id'          => $item->unit_id ?? null,
+                        'condition'        => $itemData['condition'] ?? 'normal',
+                    ]);
+                }
+            });
+
             return redirect()->route('admin.outgoing.index')
-                           ->with('success', 'Outgoing item created successfully');
+                ->with('success', '✓ Outgoing items berhasil ditambahkan');
+
         } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Failed to create outgoing item: ' . $e->getMessage());
+            \Log::error('Outgoing Store Error: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
+            
+            return redirect()->back()
+                ->with('error', '✗ Gagal menambahkan: ' . $e->getMessage())
+                ->withInput();
         }
     }
 
     public function show($id)
     {
-        $outgoing = OutgoingItem::with('admin', 'supervisor', 'details.item')->findOrFail($id);
+        $outgoing = OutgoingItem::with(['admin', 'supervisor', 'departement', 'details.item.unit'])->findOrFail($id);
         return view('admin.outgoing.show', compact('outgoing'));
     }
 
     public function edit($id)
     {
-        $outgoing = OutgoingItem::with('details.item')->findOrFail($id);
-        $items = Item::all();
-        return view('admin.outgoing.edit', compact('outgoing', 'items'));
+        $outgoing = OutgoingItem::with(['details.item.unit'])->findOrFail($id);
+        $items = Item::with('unit')->get();
+        $departements = Departement::where('is_active', 1)->get();
+
+        return view('admin.outgoing.edit', compact('outgoing', 'items', 'departements'));
     }
 
     public function update(Request $request, $id)
     {
         $outgoing = OutgoingItem::findOrFail($id);
 
-        $request->validate([
-            'outgoing_date' => 'required|date',
-            'destination'   => 'required|string',
-            'status'        => 'required|in:pending,completed,cancelled',
-            'notes'         => 'nullable|string',
+        $validated = $request->validate([
+            'outgoing_date'   => 'required|date',
+            'departement_id'  => 'required|exists:departement,id',
+            'notes'           => 'nullable|string',
+            'items'           => 'required|array|min:1',
+            'items.*.item_id' => 'required|exists:items,id',
+            'items.*.quantity'=> 'required|integer|min:1',
+            'items.*.condition'=> 'nullable|in:normal,damaged',
         ]);
 
-        $outgoing->update([
-            'outgoing_date' => $request->outgoing_date,
-            'destination'   => $request->destination,
-            'status'        => $request->status,
-            'notes'         => $request->notes,
-        ]);
+        try {
+            DB::transaction(function () use ($validated, $outgoing) {
+                // 1. Revert (Kembalikan stok lama ke kolom 'stock')
+                foreach ($outgoing->details as $detail) {
+                    Item::where('id', $detail->item_id)->increment('stock', $detail->quantity);
+                }
 
-        return redirect()->route('admin.outgoing.show', $outgoing->id)
-                       ->with('success', 'Outgoing item updated successfully');
+                // 2. Update Header
+                $outgoing->update([
+                    'outgoing_date'  => $validated['outgoing_date'],
+                    'departement_id' => $validated['departement_id'],
+                    'notes'          => $validated['notes'] ?? null,
+                ]);
+
+                // 3. Re-create Details
+                $outgoing->details()->delete();
+
+                foreach ($validated['items'] as $itemData) {
+                    $item = Item::lockForUpdate()->findOrFail($itemData['item_id']);
+
+                    if ($item->stock < $itemData['quantity']) {
+                        throw new \Exception("Stok {$item->item_name} tidak mencukupi.");
+                    }
+
+                    $item->decrement('stock', $itemData['quantity']);
+
+                    OutgoingItemDetail::create([
+                        'outgoing_item_id' => $outgoing->id,
+                        'item_id'          => $itemData['item_id'],
+                        'quantity'         => $itemData['quantity'],
+                        'unit_id'          => $item->unit_id ?? null,
+                        'condition'        => $itemData['condition'] ?? 'normal',
+                    ]);
+                }
+            });
+
+            return redirect()->route('admin.outgoing.show', $outgoing->id)
+                ->with('success', '✓ Outgoing item berhasil diperbarui');
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', '✗ Gagal update: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     public function destroy($id)
     {
         $outgoing = OutgoingItem::findOrFail($id);
 
-        DB::beginTransaction();
-
         try {
-            foreach ($outgoing->details as $detail) {
-                $detail->item->increment('stock', $detail->quantity);
-                $detail->delete();
-            }
+            DB::transaction(function () use ($outgoing) {
+                // Kembalikan stok ke kolom 'stock' sebelum dihapus
+                foreach ($outgoing->details as $detail) {
+                    Item::where('id', $detail->item_id)->increment('stock', $detail->quantity);
+                }
 
-            $outgoing->delete();
+                $outgoing->details()->delete();
+                $outgoing->delete();
+            });
 
-            DB::commit();
             return redirect()->route('admin.outgoing.index')
-                           ->with('success', 'Outgoing item deleted successfully');
+                ->with('success', '✓ Data berhasil dihapus dan stok dikembalikan');
         } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Failed to delete outgoing item: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', '✗ Gagal menghapus: ' . $e->getMessage());
         }
     }
 }

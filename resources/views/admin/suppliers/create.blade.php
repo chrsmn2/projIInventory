@@ -1,5 +1,4 @@
-<!-- filepath: resources/views/admin/suppliers/create.blade.php -->
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Add Supplier')
 
@@ -10,6 +9,18 @@
 
     <form action="{{ route('admin.suppliers.store') }}" method="POST">
         @csrf
+
+        <div>
+            <label class="block text-sm font-bold text-gray-800">
+                Supplier Code
+            </label>
+            <input type="text" name="supplier_code"
+                   class="w-full mt-1 rounded-lg border border-gray-300
+                          text-gray-900
+                          focus:ring-emerald-500 focus:border-emerald-500"
+                   placeholder="Auto-generated"
+                   disabled>
+        </div>
 
         <div class="mb-4">
             <label class="block text-sm font-medium mb-2">Supplier Name</label>

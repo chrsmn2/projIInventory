@@ -10,7 +10,13 @@ class OutgoingItemDetail extends Model
     use HasFactory;
 
     protected $table = 'outgoing_item_details';
-    protected $fillable = ['outgoing_item_id', 'item_id', 'quantity'];
+    protected $fillable = [
+        'outgoing_item_id', 
+        'item_id', 
+        'quantity', 
+        'unit_id',
+        'condition'
+    ];
 
     public function outgoingItem()
     {
@@ -20,5 +26,9 @@ class OutgoingItemDetail extends Model
     public function item()
     {
         return $this->belongsTo(Item::class, 'item_id');
+    }
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class, 'unit_id');
     }
 }
