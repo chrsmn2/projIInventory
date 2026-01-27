@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::table('incoming_items', function (Blueprint $table) {
             // Drop the old suppliers column and add supplier_id as foreign key
-            $table->dropColumn('supplier');
-            $table->foreignId('supplier_id')->after('admin_id')->constrained('suppliers')->cascadeOnDelete();
+            //$table->dropColumn('supplier');
+            //$table->foreignId('supplier_id')->after('admin_id')->constrained('suppliers')->cascadeOnDelete();
         });
     }
 
@@ -25,9 +25,9 @@ return new class extends Migration
     {
         Schema::table('incoming_items', function (Blueprint $table) {
             // Reverse: drop supplier_id and add back suppliers column
-            $table->dropForeign(['supplier_id']);
-            $table->dropColumn('supplier_id');
-            $table->string('supplier')->after('admin_id');
+            //$table->dropForeign(['supplier_id']);
+            //$table->dropColumn('supplier_id');
+            //$table->string('supplier')->after('admin_id');
         });
     }
 };

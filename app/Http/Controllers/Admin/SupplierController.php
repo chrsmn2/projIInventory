@@ -34,14 +34,24 @@ class SupplierController extends Controller
             'address' => 'required|string',
             'status' => 'required|in:active,inactive',
         ], [
-            'supplier_name.unique' => 'This supplier name already exists.',
-            'contact_email.unique' => 'This email is already registered.',
+            'supplier_name.unique' => 'This supplier name already exists. Please choose a different name.',
+            'supplier_name.required' => 'Supplier name is required.',
+            'supplier_name.max' => 'Supplier name cannot exceed 255 characters.',
+            'contact_phone.required' => 'Contact phone is required.',
+            'contact_phone.max' => 'Contact phone cannot exceed 20 characters.',
+            'contact_email.required' => 'Contact email is required.',
+            'contact_email.email' => 'Please enter a valid email address.',
+            'contact_email.max' => 'Contact email cannot exceed 255 characters.',
+            'contact_email.unique' => 'This email is already registered. Please use a different email.',
+            'address.required' => 'Address is required.',
+            'status.required' => 'Please select supplier status.',
+            'status.in' => 'Invalid status selected.',
         ]);
 
         $validated['is_active'] = ($request->condition === 'normal') ? 1 : 0;
 
         // 2. TENTUKAN PREFIX PERMANEN
-        $prefix = 'VEN';
+        $prefix = 'VEN-';
 
         // 3. CARI NOMOR URUT TERAKHIR
         // Mengambil supplier dengan kode berawalan VEN yang urutannya paling besar
@@ -51,7 +61,7 @@ class SupplierController extends Controller
 
         if ($lastSupplier) {
             // Mengambil angka setelah 'VEN' (karakter ke-4 dan seterusnya)
-            $lastNumber = intval(substr($lastSupplier->supplier_code, 3));
+            $lastNumber = intval(substr($lastSupplier->supplier_code, 4));
             $nextNumber = $lastNumber + 1;
         } else {
             // Jika belum ada data sama sekali di database
@@ -72,7 +82,7 @@ class SupplierController extends Controller
 
         return redirect()
             ->route('admin.suppliers.index')
-            ->with('success', 'Supplier added successfully');
+            ->with('success', 'Vendors added successfully');
     }
 
     public function edit(Supplier $supplier)
@@ -107,7 +117,7 @@ class SupplierController extends Controller
         ]);
 
         return redirect()->route('admin.suppliers.index')
-                         ->with('success', '✓ Supplier updated successfully!');
+                         ->with('success', '✓ Vendors updated successfully!');
     }
 
     public function destroy(Supplier $supplier)
@@ -115,6 +125,6 @@ class SupplierController extends Controller
         $supplier->delete();
 
         return redirect()->route('admin.suppliers.index')
-                         ->with('success', '✓ Supplier deleted successfully!');
+                         ->with('success', '✓ Vendors deleted successfully!');
     }
 }

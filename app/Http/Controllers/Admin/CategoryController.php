@@ -31,18 +31,22 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:100',
+            'name' => 'required|string|max:100|unique:categories,name',
             'description' => 'nullable|string',
+        ], [
+            'name.unique' => 'Category name already exists. Please choose a different name.',
+            'name.required' => 'Category name is required.',
+            'name.max' => 'Category name cannot exceed 100 characters.',
         ]);
 
-        // AUTO GENERATE CODE
-        $prefix = strtoupper(substr($request->name, 0, 3));
+        // AUTO GENERATE CODE: CAT-001, CAT-002, dll.
+        $prefix = 'CAT-';
 
         $last = Category::where('code', 'like', $prefix.'%')
             ->orderBy('code', 'desc')
             ->first();
 
-        $number = $last ? intval(substr($last->code, 3)) + 1 : 1;
+        $number = $last ? intval(substr($last->code, 4)) + 1 : 1;
 
         $code = $prefix . str_pad($number, 3, '0', STR_PAD_LEFT);
 
@@ -61,8 +65,12 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
          $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
             'description'     => 'nullable|string',
+        ], [
+            'name.unique' => 'Category name already exists. Please choose a different name.',
+            'name.required' => 'Category name is required.',
+            'name.max' => 'Category name cannot exceed 255 characters.',
         ]);
 
         // CODE TIDAK DIUPDATE

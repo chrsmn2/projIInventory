@@ -11,8 +11,8 @@
                 bg-gradient-to-r from-gray-700 to-gray-800 rounded-t-xl">
 
         <div>
-            <h2 class="text-xl font-semibold text-black">Add Incoming Items</h2>
-            <p class="text-sm text-gray-500">
+            <h2 class="text-xl font-semibold text-white">Add Incoming Items</h2>
+            <p class="text-sm text-gray-300">
                 Add new incoming items and automatically update stock
             </p>
         </div>
@@ -60,9 +60,9 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium mb-1">Suppliers <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-medium mb-1">Vendors<span class="text-red-500">*</span></label>
                     <select name="supplier_id" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-blue-200 @error('supplier_id') border-red-500 @enderror" required>
-                        <option value="">Select Supplier</option>
+                        <option value="">Select Vendors</option>
                         @foreach ($suppliers as $supplier)
                             <option value="{{ $supplier->id }}" {{ (string)old('supplier_id') == (string)$supplier->id ? 'selected' : '' }}>
                                 {{ $supplier->supplier_name }}
@@ -72,7 +72,7 @@
                     @error('supplier_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1">Notes</label>
+                    <label class="block text-sm font-medium mb-1">Description</label>
                     <input type="text" name="notes" value="{{ old('notes') }}"
                            placeholder="Optional notes"
                            class="w-full px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-blue-200">
@@ -143,12 +143,8 @@
             <div class="mt-8 flex gap-4 border-t pt-6">
                 <button type="submit"
                         class="px-6 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition">
-                    ✓ Save Incoming Items
+                    Save Incoming Items
                 </button>
-                <a href="{{ route('admin.incoming.index') }}"
-                   class="px-6 py-2 bg-gray-100 text-gray-600 font-semibold rounded-lg hover:bg-gray-200 transition">
-                    ✕ Cancel
-                </a>
             </div>
         </form>
     </div>

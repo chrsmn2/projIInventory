@@ -11,17 +11,37 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('loan_approvals', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('loan_id')->constrained('loans')->onDelete('cascade');
-            $table->foreignId('supervisor_id')->constrained('users')->onDelete('cascade');
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-            $table->text('notes')->nullable();
-            $table->timestamp('approved_at')->nullable();
-            $table->timestamps();
+        // Membuat tabel loan_approvals untuk menyimpan data approval peminjaman
+        // Terpisah dari tabel loans untuk mendukung multiple approvers
+        // Schema::create('loan_approvals', function (Blueprint $table) {
+        //     // Primary key auto-increment
+        //     $table->id();
 
-            $table->unique(['loan_id', 'supervisor_id']);
-        });
+        //     // Foreign key ke tabel loans (peminjaman yang diapprove)
+        //     $table->foreignId('loan_id')
+        //         ->constrained('loans')    // Relasi ke tabel loans
+        //         ->onDelete('cascade');    // Hapus approval jika loan dihapus
+
+        //     // Foreign key ke tabel users (supervisor yang approve)
+        //     $table->foreignId('supervisor_id')
+        //         ->constrained('users')    // Relasi ke tabel users
+        //         ->onDelete('cascade');    // Hapus approval jika user dihapus
+
+        //     // Status approval
+        //     $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+
+        //     // Catatan tambahan dari supervisor (opsional)
+        //     $table->text('notes')->nullable();
+
+        //     // Timestamp kapan diapprove
+        //     $table->timestamp('approved_at')->nullable();
+
+        //     // Timestamps untuk created_at dan updated_at
+        //     $table->timestamps();
+
+        //     // Unique constraint: satu loan hanya bisa di-approve sekali oleh satu supervisor
+        //     $table->unique(['loan_id', 'supervisor_id']);
+        // });
     }
 
     /**
@@ -29,6 +49,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('loan_approvals');
+        // Menghapus tabel loan_approvals jika rollback migration
+        // Schema::dropIfExists('loan_approvals');
     }
 };

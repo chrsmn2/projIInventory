@@ -8,8 +8,8 @@
 
     <!-- Header -->
     <div class="px-6 py-4 bg-gradient-to-r from-gray-700 to-gray-800 rounded-t-xl">
-        <h2 class="text-xl font-bold text-black">Add New Category</h2>
-        <p class="text-sm text-gray-500">Create new item category</p>
+        <h2 class="text-xl font-bold text-white">Add New Category</h2>
+        <p class="text-sm text-gray-300">Create new item category</p>
     </div>
 
     <!-- Form -->
@@ -36,10 +36,14 @@
                 Category Name
             </label>
             <input type="text" name="name"
-                   class="w-full mt-1 rounded-lg border border-gray-300
+                   class="w-full mt-1 rounded-lg border @error('name') border-red-500 @else border-gray-300 @enderror
                           text-gray-900
                           focus:ring-emerald-500 focus:border-emerald-500"
+                   value="{{ old('name') }}"
                    required>
+            @error('name')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+            @enderror
         </div>
 
         <div>

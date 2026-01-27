@@ -246,17 +246,15 @@
 
         <!-- PAGINATION -->
         @if($loans->hasPages())
-        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div class="text-sm text-gray-600">
-                    Showing <span class="font-semibold">{{ $loans->firstItem() }}</span> to 
-                    <span class="font-semibold">{{ $loans->lastItem() }}</span> of 
-                    <span class="font-semibold">{{ $loans->total() }}</span> results
-                </div>
+        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <p class="text-sm text-gray-600">
+                Showing <span class="font-semibold">{{ $loans->firstItem() }}</span>
+                to <span class="font-semibold">{{ $loans->lastItem() }}</span>
+                of <span class="font-semibold">{{ $loans->total() }}</span> loan requests
+            </p>
 
-                <div>
-                    {{ $loans->links() }}
-                </div>
+            <div class="flex justify-center">
+                {{ $loans->appends(request()->query())->links('pagination::tailwind') }}
             </div>
         </div>
         @endif

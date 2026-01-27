@@ -11,8 +11,8 @@
                 bg-gradient-to-r from-gray-700 to-gray-800 rounded-t-xl">
 
         <div>
-            <h2 class="text-xl font-semibold text-black">Add Outgoing Items</h2>
-            <p class="text-sm text-gray-500">
+            <h2 class="text-xl font-semibold text-white">Add Outgoing Items</h2>
+            <p class="text-sm text-gray-300">
                 Add new outgoing items and automatically deduct stock
             </p>
         </div>

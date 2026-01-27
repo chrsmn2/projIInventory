@@ -7,9 +7,9 @@
 <div class="max-w-xl mx-auto bg-white rounded-xl shadow-xl border">
 
     <!-- Header -->
-    <div class="px-6 py-4 bg-blue-600 rounded-t-xl">
-        <h2 class="text-xl font-bold text-white">Edit Category</h2>
-        <p class="text-sm text-blue-100">Update category information</p>
+    <div class="fflex flex-col px-8 py-8 rounded-t-xl bg-gradient-to-r from-gray-700 to-gray-800">
+        <h2 class="text-xl font-bold text-white">Update Category</h2>
+        <p class="text-sm text-gray-300">Update category information</p>
     </div>
 
     <!-- Form -->
@@ -31,10 +31,13 @@
         <div>
             <label class="text-sm font-semibold text-gray-800">Category Name</label>
             <input type="text" name="name"
-                   value="{{ $category->name }}"
-                   class="w-full mt-1 rounded-lg border border-gray-300 text-gray-900
+                   value="{{ old('name', $category->name) }}"
+                   class="w-full mt-1 rounded-lg border @error('name') border-red-500 @else border-gray-300 @enderror text-gray-900
                           focus:ring-blue-500 focus:border-blue-500"
                    required>
+            @error('name')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+            @enderror
         </div>
 
         <div>
@@ -54,7 +57,7 @@
 
 
         <button
-            class="px-4 py-2 rounded-lg border border-gray-300 text-black hover:bg-blue-100">
+            class="px-6 py-2 rounded-lg bg-emerald-600 text-white font-bold shadow hover:bg-emerald-700 transition">
             Update Category
         </button>
     </form>

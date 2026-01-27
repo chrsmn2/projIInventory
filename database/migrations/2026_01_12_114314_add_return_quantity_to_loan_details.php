@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('loan_details', function (Blueprint $table) {
-            $table->integer('returned_quantity')
-                  ->default(0)
-                  ->after('quantity');
-        });
+        // Schema::table('loan_details', function (Blueprint $table) {
+        //    /* $table->integer('returned_quantity')
+        //           ->default(0)
+        //           ->after('quantity');*/
+        // });
     }
 
     /**
@@ -24,7 +24,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('loan_details', function (Blueprint $table) {
-            $table->dropColumn('returned_quantity');
+            //$table->dropColumn('returned_quantity');
         });
     }
 };

@@ -4,30 +4,52 @@
 
 @section('content')
 
-<div class="bg-white rounded-xl shadow-sm border border-gray-200">
-
-    <!-- ===================== -->
-    <!-- HEADER -->
-    <!-- ===================== -->
-    <div class="flex items-center justify-between px-6 py-4 rounded-t-xl bg-gradient-to-r from-gray-700 to-gray-800">
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h2 class="text-xl font-semibold text-black">Outgoing Item</h2>
-            <p class="text-sm text-gray-500">Master data inventory outgoing items</p>
+            <h1 class="text-2xl font-bold text-gray-900">Outgoing Items</h1>
+            <p class="text-gray-600 mt-1">Manage outgoing item transactions</p>
         </div>
 
-        <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full md:w-auto">
-            <div class="flex flex-col sm:flex-row sm:items-center gap-2 flex-1">
-                <form method="GET" class="flex gap-2 flex-1 sm:flex-none">
+        <a href="{{ route('admin.outgoing.create') }}"
+           class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            Add Outgoing Item
+        </a>
+    </div>
+
+    @if (session('success'))
+        <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div class="flex">
+                <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <p class="ml-3 text-sm font-medium text-green-800">{{ session('success') }}</p>
+            </div>
+        </div>
+    @endif
+
+    <!-- Search and Filters -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex flex-col sm:flex-row gap-4">
+            <div class="flex-1">
+                <form method="GET" class="flex gap-2">
                     <input type="text" name="search" value="{{ $search }}" placeholder="Search item..."
-                        class="px-3 py-2 border rounded-lg text-sm w-full sm:w-48 focus:ring focus:ring-blue-200">
-                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">
+                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                         Search
                     </button>
                 </form>
+            </div>
 
-                <form method="GET" class="flex items-center">
+            <div class="sm:w-48">
+                <form method="GET">
                     <input type="hidden" name="search" value="{{ $search }}">
-                    <select name="per_page" onchange="this.form.submit()" class="px-3 py-2 border rounded-lg text-sm">
+                    <select name="per_page" onchange="this.form.submit()"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         @foreach([5,10,25,50] as $size)
                             <option value="{{ $size }}" {{ $perPage == $size ? 'selected' : '' }}>
                                 Show {{ $size }}
@@ -36,54 +58,44 @@
                     </select>
                 </form>
             </div>
-
-            <a href="{{ route('admin.outgoing.create') }}"
-               class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500 text-white font-semibold text-sm rounded-lg hover:bg-emerald-600 transition ml-auto mt-2 sm:mt-0">
-                + Add Outgoing Item
-            </a>
         </div>
     </div>
-    <!-- ===================== -->
-    <!-- TABLE -->
-    <!-- ===================== -->
-    <div class="overflow-x-auto">
-        @if ($outgoing->count() > 0)
-            <table class="w-full text-sm">
-                <thead class="bg-gray-100 border-b border-gray-200">
+
+    <!-- Table -->
+    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full min-w-[900px] text-sm">
+                <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
-                        <th class="px-6 py-4 text-left font-bold text-gray-700 uppercase tracking-wider">No</th>
-                        <th class="px-6 py-4 text-left font-bold text-gray-700 uppercase tracking-wider">Code</th>
-                        <th class="px-6 py-4 text-left font-bold text-gray-700 uppercase tracking-wider">Date</th>
-                        <th class="px-6 py-4 text-left font-bold text-gray-700 uppercase tracking-wider">Admin</th>
-                        <th class="px-6 py-4 text-left font-bold text-gray-700 uppercase tracking-wider">Department</th>
-                        <!--<th class="px-6 py-4 text-left font-bold text-gray-700 uppercase tracking-wider">Item</th>
-                        <th class="px-6 py-4 text-center font-bold text-gray-700 uppercase tracking-wider">Qty</th>
-                        <th class="px-6 py-4 text-left font-bold text-gray-700 uppercase tracking-wider">Status</th>-->
-                        <th class="px-6 py-4 text-left font-bold text-gray-700 uppercase tracking-wider">Notes</th>
-                        <th class="px-6 py-4 text-center font-bold text-gray-700 uppercase tracking-wider">Action</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-900">No</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-900">Code</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-900">Date</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-900">Admin</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-900">Department</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-900">Notes</th>
+                        <th class="px-6 py-4 text-center font-semibold text-gray-900">Actions</th>
                     </tr>
                 </thead>
 
-                <tbody class="divide-y divide-gray-100">
+                <tbody class="divide-y divide-gray-200">
                     @forelse ($outgoing as $index => $outgoingItem)
                         @php $rowspan = $outgoingItem->details->count(); @endphp
 
                         @foreach ($outgoingItem->details as $detailIndex => $detail)
-                        <tr class="hover:bg-orange-50 transition duration-150">
-
+                        <tr class="hover:bg-gray-50 transition-colors">
                             {{-- NO --}}
                             @if ($detailIndex === 0)
-                            <td rowspan="{{ $rowspan }}" class="px-6 py-4 font-semibold text-gray-900">
+                            <td rowspan="{{ $rowspan }}" class="px-6 py-4 text-gray-900 font-medium">
                                 {{ ($outgoing->currentPage() - 1) * $outgoing->perPage() + $index + 1 }}
                             </td>
 
                             {{-- CODE --}}
-                            <td rowspan="{{ $rowspan }}" class="px-6 py-4 font-mono font-bold text-gray-900">
-                                {{ $outgoingItem->code }}
+                            <td rowspan="{{ $rowspan }}" class="px-6 py-4">
+                                <span class="font-mono text-blue-600 font-semibold">{{ $outgoingItem->code }}</span>
                             </td>
 
                             {{-- DATE --}}
-                            <td rowspan="{{ $rowspan }}" class="px-6 py-4 text-gray-900 font-semibold">
+                            <td rowspan="{{ $rowspan }}" class="px-6 py-4 text-gray-900 font-medium">
                                 {{ $outgoingItem->outgoing_date->format('d-m-Y') }}
                             </td>
 
@@ -93,32 +105,9 @@
                             </td>
 
                             {{-- DEPARTMENT --}}
-                            <td rowspan="{{ $rowspan }}" class="px-6 py-4 font-semibold text-gray-700">
+                            <td rowspan="{{ $rowspan }}" class="px-6 py-4 text-gray-700 font-medium">
                                 {{ $outgoingItem->departement?->departement_name ?? '-' }}
                             </td>
-                            @endif
-
-                            <!--{{-- ITEM --}}
-                            <td class="px-6 py-4 font-semibold text-gray-900">
-                                {{ $detail->item?->item_name ?? '-' }}
-                            </td>-->
-
-                            <!--{{-- QTY --}}
-                            <td class="px-6 py-4 text-center font-bold text-red-600">
-                                {{ $detail->quantity }}
-                            </td>-->
-
-                            {{-- STATUS --}}
-                            <!--@if ($detailIndex === 0)
-                            <td rowspan="{{ $rowspan }}" class="px-6 py-4">
-                                <span class="inline-flex px-3 py-1 rounded-full text-xs font-bold
-                                    @if($outgoingItem->status == 'pending') bg-yellow-100 text-yellow-800
-                                    @elseif($outgoingItem->status == 'completed') bg-green-100 text-green-800
-                                    @elseif($outgoingItem->status == 'cancelled') bg-red-100 text-red-800
-                                    @else bg-gray-100 text-gray-800 @endif">
-                                    {{ ucfirst($outgoingItem->status) }}
-                                </span>
-                            </td>-->
 
                             {{-- NOTES --}}
                             <td rowspan="{{ $rowspan }}" class="px-6 py-4 text-gray-600 max-w-xs truncate">
@@ -129,69 +118,62 @@
                             <td rowspan="{{ $rowspan }}" class="px-6 py-4">
                                 <div class="flex justify-center gap-2">
                                     <a href="{{ route('admin.outgoing.show', $outgoingItem->id) }}"
-                                       class="px-3 py-1.5 text-xs font-semibold bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                                    class="px-3 py-1.5 text-xs font-semibold bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
                                         View
                                     </a>
 
                                     <a href="{{ route('admin.outgoing.edit', $outgoingItem->id) }}"
-                                       class="px-3 py-1.5 text-xs font-semibold bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                                    class="px-3 py-1.5 text-xs font-semibold bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
                                         Update
                                     </a>
 
                                     <form action="{{ route('admin.outgoing.destroy', $outgoingItem->id) }}"
-                                          method="POST"
-                                          onsubmit="return confirm('Delete this outgoing record?')"
-                                          style="display:inline;">
+                                        method="POST"
+                                        onsubmit="return confirm('Delete this outgoing record?')">
                                         @csrf
                                         @method('DELETE')
-
-                                        <button type="submit"
-                                            class="px-3 py-1.5 text-xs font-semibold bg-red-600 text-white rounded hover:bg-red-700 transition">
+                                        <button class="px-3 py-1.5 text-xs font-semibold bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
                                             Delete
                                         </button>
                                     </form>
                                 </div>
                             </td>
                             @endif
-
                         </tr>
                         @endforeach
 
                     @empty
                         <tr>
-                            <td colspan="10" class="text-center py-16 text-gray-500">
-                                <p class="text-lg mb-4">No outgoing data available</p>
-                                <a href="{{ route('admin.outgoing.create') }}" class="text-gray-700 hover:underline font-semibold">Add new outgoing item</a>
+                            <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                                <div class="flex flex-col items-center">
+                                    <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                    </svg>
+                                    <p class="text-lg font-medium mb-1">No outgoing items found</p>
+                                    <p class="text-sm">Get started by adding your first outgoing item transaction</p>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
+        </div>
 
-            <!-- ===================== -->
-            <!-- PAGINATION -->
-            <!-- ===================== -->
-            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-between items-center rounded-b-xl">
-                <p class="text-sm text-gray-600">
-                    Showing <span class="font-bold">{{ ($outgoing->currentPage() - 1) * $outgoing->perPage() + 1 }}</span> 
-                    to <span class="font-bold">{{ min($outgoing->currentPage() * $outgoing->perPage(), $outgoing->total()) }}</span> 
-                    of <span class="font-bold">{{ $outgoing->total() }}</span> outgoing records
-                </p>
-                
-                <div>
-                    {{ $outgoing->links('pagination::tailwind') }}
-                </div>
+        <!-- Pagination -->
+        @if($outgoing->hasPages())
+        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <p class="text-sm text-gray-600">
+                Showing <span class="font-semibold">{{ ($outgoing->currentPage() - 1) * $outgoing->perPage() + 1 }}</span>
+                to <span class="font-semibold">{{ min($outgoing->currentPage() * $outgoing->perPage(), $outgoing->total()) }}</span>
+                of <span class="font-semibold">{{ $outgoing->total() }}</span> outgoing records
+            </p>
+
+            <div class="flex justify-center">
+                {{ $outgoing->appends(request()->query())->links('pagination::tailwind') }}
             </div>
-        @else
-            <div class="text-center py-16">
-                <p class="text-gray-500 text-lg mb-4">No outgoing data available</p>
-                <a href="{{ route('admin.outgoing.create') }}" class="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-semibold">
-                    + Add Outgoing Item
-                </a>
-            </div>
+        </div>
         @endif
     </div>
-
 </div>
 
 @endsection

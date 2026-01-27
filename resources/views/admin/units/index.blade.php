@@ -4,30 +4,52 @@
 
 @section('content')
 
-<div class="bg-white rounded-xl shadow-sm border border-gray-200">
-
-    <!-- ===================== -->
-    <!-- HEADER -->
-    <!-- ===================== -->
-    <div class="flex items-center justify-between px-6 py-4 rounded-t-xl bg-gradient-to-r from-gray-700 to-gray-800">
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h2 class="text-xl font-semibold text-black">Units</h2>
-            <p class="text-sm text-gray-500">Master data inventory Units</p>
+            <h1 class="text-2xl font-bold text-gray-900">Units</h1>
+            <p class="text-gray-600 mt-1">Manage inventory units</p>
         </div>
 
-        <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full md:w-auto">
-            <div class="flex flex-col sm:flex-row sm:items-center gap-2 flex-1">
-                <form method="GET" class="flex gap-2 flex-1 sm:flex-none">
-                    <input type="text" name="search" value="{{ $search }}" placeholder="Search item..."
-                        class="px-3 py-2 border rounded-lg text-sm w-full sm:w-48 focus:ring focus:ring-blue-200">
-                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">
+        <a href="{{ route('admin.units.create') }}"
+           class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            Add Unit
+        </a>
+    </div>
+
+    @if (session('success'))
+        <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div class="flex">
+                <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <p class="ml-3 text-sm font-medium text-green-800">{{ session('success') }}</p>
+            </div>
+        </div>
+    @endif
+
+    <!-- Search and Filters -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex flex-col sm:flex-row gap-4">
+            <div class="flex-1">
+                <form method="GET" class="flex gap-2">
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Search units..."
+                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                         Search
                     </button>
                 </form>
+            </div>
 
-                <form method="GET" class="flex items-center">
+            <div class="sm:w-48">
+                <form method="GET">
                     <input type="hidden" name="search" value="{{ $search }}">
-                    <select name="per_page" onchange="this.form.submit()" class="px-3 py-2 border rounded-lg text-sm">
+                    <select name="per_page" onchange="this.form.submit()"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         @foreach([5,10,25,50] as $size)
                             <option value="{{ $size }}" {{ $perPage == $size ? 'selected' : '' }}>
                                 Show {{ $size }}
@@ -36,103 +58,107 @@
                     </select>
                 </form>
             </div>
-
-            <a href="{{ route('admin.units.create') }}"
-               class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500 text-white font-semibold text-sm rounded-lg hover:bg-emerald-600 transition ml-auto mt-2 sm:mt-0">
-                + Add Units
-            </a>
         </div>
     </div>
 
-    <!-- ===================== -->
-    <!-- TABLE -->
-    <!-- ===================== -->
-    <div class="overflow-x-auto">
-        @if ($units->count() > 0)
-            <table class="w-full text-sm">
-                <thead class="bg-gray-100 border-b border-gray-200">
-                    <tr>
-                        <th class="px-6 py-4 text-left font-bold text-gray-700 uppercase tracking-wider">No</th>
-                        <th class="px-6 py-4 text-left font-bold text-gray-700 uppercase tracking-wider">Code</th>
-                        <th class="px-6 py-4 text-left font-bold text-gray-700 uppercase tracking-wider">Unit Name</th>
-                        <th class="px-6 py-4 text-left font-bold text-gray-700 uppercase tracking-wider">Description</th>
-                        <th class="px-6 py-4 text-center font-bold text-gray-700 uppercase tracking-wider">Action</th>
-                    </tr>
-                </thead>
-
-                <tbody class="divide-y divide-gray-100">
-                    @forelse ($units as $unit)
-                        <tr class="hover:bg-blue-50 transition duration-150">
-                            <td class="px-6 py-4 font-semibold text-gray-900">
-                                {{ ($units->currentPage() - 1) * $units->perPage() + $loop->iteration }}
-                            </td>
-
-                            <td class="px-6 py-4 font-semibold text-gray-700 bg-blue-50 rounded">
-                                {{ $unit->code }}
-                            </td>
-
-                            <td class="px-6 py-4 font-semibold text-gray-900">
-                                {{ $unit->name }}
-                            </td>
-
-                            <td class="px-6 py-4 text-gray-600 max-w-xs truncate">
-                                {{ $unit->description ?? '-' }}
-                            </td>
-
-                            <td class="px-4 py-3">
-                                <div class="flex justify-center gap-2">
-                                    <a href="{{ route('admin.units.edit', $unit->id) }}"
-                                    class="px-3 py-1.5 text-xs font-semibold bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-                                        Update
-                                    </a>
-
-                                    <form action="{{ route('admin.units.destroy', $unit->id) }}"
-                                        method="POST"
-                                        onsubmit="return confirm('Delete this unit?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="px-3 py-1.5 text-xs font-semibold bg-red-600 text-white rounded hover:bg-red-700 transition">
-                                            Delete
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
+    <!-- Table -->
+    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            @if ($units->count() > 0)
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
-                            <td colspan="5" class="text-center py-16 text-gray-500">
-                                <p class="text-lg mb-4">No units available</p>
-                                <a href="{{ route('admin.units.create') }}" class="text-gray-700 hover:underline font-semibold">Create one now</a>
-                            </td>
+                            <th class="px-6 py-4 text-left font-semibold text-gray-900">No</th>
+                            <th class="px-6 py-4 text-left font-semibold text-gray-900">Code</th>
+                            <th class="px-6 py-4 text-left font-semibold text-gray-900">Unit Name</th>
+                            <th class="px-6 py-4 text-left font-semibold text-gray-900">Description</th>
+                            <th class="px-6 py-4 text-center font-semibold text-gray-900">Actions</th>
                         </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
 
-            <!-- ===================== -->
-            <!-- PAGINATION -->
-            <!-- ===================== -->
-            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-between items-center rounded-b-xl">
-                <p class="text-sm text-gray-600">
-                    Showing <span class="font-bold">{{ ($units->currentPage() - 1) * $units->perPage() + 1 }}</span> 
-                    to <span class="font-bold">{{ min($units->currentPage() * $units->perPage(), $units->total()) }}</span> 
-                    of <span class="font-bold">{{ $units->total() }}</span> units
-                </p>
-                
-                <div>
-                    {{ $units->links('pagination::tailwind') }}
+                    <tbody class="divide-y divide-gray-200">
+                        @forelse ($units as $unit)
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 text-gray-900 font-medium">
+                                    {{ ($units->currentPage() - 1) * $units->perPage() + $loop->iteration }}
+                                </td>
+
+                                <td class="px-6 py-4">
+                                    <span class="font-mono text-blue-600 font-semibold">{{ $unit->code }}</span>
+                                </td>
+
+                                <td class="px-6 py-4 text-gray-900 font-medium">
+                                    {{ $unit->name }}
+                                </td>
+
+                                <td class="px-6 py-4 text-gray-600 max-w-xs truncate">
+                                    {{ $unit->description ?? '-' }}
+                                </td>
+
+                                <td class="px-6 py-4">
+                                    <div class="flex justify-center gap-2">
+                                        <a href="{{ route('admin.units.edit', $unit->id) }}"
+                                        class="px-3 py-1.5 text-xs font-semibold bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                                            Edit
+                                        </a>
+
+                                        <form action="{{ route('admin.units.destroy', $unit->id) }}"
+                                            method="POST"
+                                            onsubmit="return confirm('Delete this unit?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="px-3 py-1.5 text-xs font-semibold bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                    <div class="flex flex-col items-center">
+                                        <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                                        </svg>
+                                        <p class="text-lg font-medium mb-1">No units found</p>
+                                        <p class="text-sm">Get started by creating your first unit</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+
+                <!-- Pagination -->
+                <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <p class="text-sm text-gray-600">
+                        Showing <span class="font-bold">{{ ($units->currentPage() - 1) * $units->perPage() + 1 }}</span>
+                        to <span class="font-bold">{{ min($units->currentPage() * $units->perPage(), $units->total()) }}</span>
+                        of <span class="font-bold">{{ $units->total() }}</span> units
+                    </p>
+
+                    <div class="flex justify-center">
+                        {{ $units->links('pagination::tailwind') }}
+                    </div>
                 </div>
-            </div>
-        @else
-            <div class="text-center py-16">
-                <p class="text-gray-500 text-lg mb-4">No units found</p>
-                <a href="{{ route('admin.units.create') }}" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold">
-                    Create First Unit
-                </a>
-            </div>
-        @endif
+            @else
+                <div class="px-6 py-12 text-center">
+                    <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No units yet</h3>
+                    <p class="text-gray-500 mb-6">Create your first unit to get started</p>
+                    <a href="{{ route('admin.units.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Add Unit
+                    </a>
+                </div>
+            @endif
+        </div>
     </div>
-
 </div>
 
 @endsection

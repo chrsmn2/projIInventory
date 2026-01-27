@@ -6,7 +6,7 @@
 <div class="max-w-4xl mx-auto bg-white rounded-xl shadow border">
 
     <div class="px-6 py-4 bg-gradient-to-r from-gray-700 to-gray-800 rounded-t-xl">
-        <h2 class="text-xl font-bold text-black">Edit Incoming Item</h2>
+        <h2 class="text-xl font-bold text-white">Update Incoming Item</h2>
     </div>
 
     {{-- GLOBAL ERROR --}}
@@ -65,6 +65,7 @@
                             @foreach ($items as $item)
                                 <option value="{{ $item->id }}"
                                     data-unit="{{ $item->unit?->name ?? 'N/A' }}"
+                                    data-unit-id="{{ $item->unit?->id ?? '' }}"
                                     {{ $detail->item_id == $item->id ? 'selected' : '' }}>
                                     {{ $item->item_name }}
                                 </option>
@@ -105,7 +106,7 @@
         <div class="mt-6 flex gap-4">
             <button type="submit"
                     class="px-6 py-2 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700">
-                ✓ Update
+                Update
             </button>
             <a href="{{ route('admin.incoming.index') }}"
                class="px-6 py-2 bg-gray-200 rounded-lg font-bold hover:bg-gray-300">

@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('loans', function (Blueprint $table) {
-            $table->renameColumn('borrower_name', 'requester_name');
-        });
+        // Mengubah nama kolom borrower_name menjadi requester_name di tabel loans
+        // untuk konsistensi penamaan (borrower -> requester)
+        // Schema::table('loans', function (Blueprint $table) {
+        //     $table->renameColumn('borrower_name', 'requester_name');
+        // });
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('loans', function (Blueprint $table) {
-            $table->renameColumn('requester_name', 'borrower_name');
-        });
+        // Mengembalikan nama kolom requester_name menjadi borrower_name
+        // jika rollback migration
+        // Schema::table('loans', function (Blueprint $table) {
+        //     $table->renameColumn('requester_name', 'borrower_name');
+        // });
     }
 };

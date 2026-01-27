@@ -4,26 +4,50 @@
 
 @section('content')
 
-<div class="bg-white rounded-xl shadow border border-gray-200">
-    <div class="flex items-center justify-between px-6 py-4 rounded-t-xl bg-gradient-to-r from-gray-700 to-gray-800">
+<div class="space-y-6">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h2 class="text-xl font-semibold text-black">Departement</h2>
-            <p class="text-sm text-gray-500">Master data inventory departement</p>
+            <h1 class="text-2xl font-bold text-gray-900">Departments</h1>
+            <p class="text-gray-600 mt-1">Manage department information</p>
         </div>
 
-        <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full md:w-auto">
-            <div class="flex flex-col sm:flex-row sm:items-center gap-2 flex-1">
-                <form method="GET" class="flex gap-2 flex-1 sm:flex-none">
-                    <input type="text" name="search" value="{{ $search }}" placeholder="Search item..."
-                        class="px-3 py-2 border rounded-lg text-sm w-full sm:w-48 focus:ring focus:ring-blue-200">
-                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">
+        <a href="{{ route('admin.departement.create') }}"
+           class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700">
+            + Add Department
+        </a>
+    </div>
+
+    @if (session('success'))
+        <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div class="flex">
+                <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <p class="ml-3 text-sm font-medium text-green-800">{{ session('success') }}</p>
+            </div>
+        </div>
+    @endif
+
+<!-- Search and Filters -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex flex-col sm:flex-row gap-4">
+            <div class="flex-1">
+                <form method="GET" class="flex gap-2">
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Search items..."
+                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                         Search
                     </button>
                 </form>
+            </div>
 
-                <form method="GET" class="flex items-center">
+            <div class="sm:w-48">
+                <form method="GET">
                     <input type="hidden" name="search" value="{{ $search }}">
-                    <select name="per_page" onchange="this.form.submit()" class="px-3 py-2 border rounded-lg text-sm">
+                    <select name="per_page" onchange="this.form.submit()"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         @foreach([5,10,25,50] as $size)
                             <option value="{{ $size }}" {{ $perPage == $size ? 'selected' : '' }}>
                                 Show {{ $size }}
@@ -32,106 +56,86 @@
                     </select>
                 </form>
             </div>
-
-            <a href="{{ route('admin.departement.create') }}"
-               class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500 text-white font-semibold text-sm rounded-lg hover:bg-emerald-600 transition ml-auto mt-2 sm:mt-0">
-                + Add Departement
-            </a>
         </div>
     </div>
 
-    <div class="p-6 overflow-x-auto">
-        <table class="w-full min-w-[900px] text-sm border border-gray-200 rounded-lg overflow-hidden">
-            <thead class="bg-gray-100 text-gray-700 uppercase text-xs">
-                <tr>
-                    <th class="px-4 py-3 w-12">No</th>
-                    <th class="px-4 py-3">Departement Code</th>
-                    <th class="px-4 py-3">Departement Name</th>
-                    <th class="px-4 py-3">Description</th>
-                    <th class="px-4 py-3 text-center">Status</th>
-                    <th class="px-4 py-3 text-center w-40">Action</th>
-                </tr>
-            </thead>
+    <!-- Table -->
+    <div class="bg-white rounded-lg border overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-3">No</th>
+                        <th class="px-4 py-3">Code</th>
+                        <th class="px-4 py-3">Department Name</th>
+                        <th class="px-4 py-3">Description</th>
+                        <th class="px-4 py-3 text-center">Status</th>
+                        <th class="px-4 py-3 text-center">Action</th>
+                    </tr>
+                </thead>
 
-            <tbody class="divide-y bg-white">
-    @forelse ($items as $dept)
-    <tr class="hover:bg-gray-50 transition">
-        <td class="px-4 py-3 text-center">
-            {{ $items->firstItem() + $loop->index }}
-        </td>
+                <tbody class="divide-y">
+                @forelse ($departements as $dept)
+                    <tr>
+                        <td class="px-4 py-3 text-center">
+                            {{ $departements->firstItem() + $loop->index }}
+                        </td>
 
-        <td class="px-4 py-3 font-semibold text-gray-800">
-            {{ $dept->code_dept }}
-        </td>
+                        <td class="px-4 py-3 font-semibold text-blue-600">
+                            {{ $dept->code_dept }}
+                        </td>
 
-        <td class="px-4 py-3 font-semibold text-gray-800">
-            {{ $dept->departement_name }}
-        </td>
+                        <td class="px-4 py-3">
+                            {{ $dept->departement_name }}
+                        </td>
 
-        <td class="px-4 py-3 text-gray-600">
-            {{ $dept->description ?? '-' }}
-        </td>
+                        <td class="px-4 py-3">
+                            {{ $dept->description ?? '-' }}
+                        </td>
 
-        <td class="px-4 py-3 text-center">
-            {{-- Jika is_active == 1 tampil Normal, jika 0 tampil Broken --}}
-            <span class="px-3 py-1 rounded-full text-xs font-semibold
-                {{ $dept->is_active == 1
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-red-100 text-red-700' }}">
-                {{ $dept->is_active == 1 ? 'Normal' : 'Broken' }}
-            </span>
-        </td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="px-2 py-1 rounded text-xs font-semibold
+                                {{ $dept->is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                                {{ $dept->is_active ? 'Active' : 'Inactive' }}
+                            </span>
+                        </td>
 
-        <td class="px-4 py-3">
-            <div class="flex justify-center gap-2">
-                <a href="{{ route('admin.departement.edit', $dept->id) }}"
-                   class="px-3 py-1.5 text-xs font-semibold bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-                    Update
-                </a>
+                        <td class="px-4 py-3 text-center">
+                            <div class="flex justify-center gap-2">
+                                <a href="{{ route('admin.departement.edit', $dept->id) }}"
+                                   class="px-3 py-1 bg-blue-600 text-white rounded text-xs">
+                                    Edit
+                                </a>
 
-                <form action="{{ route('admin.departement.destroy', $dept->id) }}"
-                      method="POST"
-                      onsubmit="return confirm('Delete this departement?')">
-                    @csrf
-                    @method('DELETE')
-                    <button class="px-3 py-1.5 text-xs font-semibold bg-red-600 text-white rounded hover:bg-red-700 transition">
-                        Delete
-                    </button>
-                </form>
-            </div>
-        </td>
-    </tr>
-    @empty
-    <tr>
-        <td colspan="5" class="px-6 py-10 text-center text-gray-400 italic">
-            No items available
-        </td>
-    </tr>
-    @endforelse
-</tbody>
-        </table>
-    </div>
-
-    <div class="p-6 border-t flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div class="text-sm text-gray-600">
-            Showing
-            <span class="font-semibold">{{ $items->firstItem() }}</span> –
-            <span class="font-semibold">{{ $items->lastItem() }}</span> of
-            <span class="font-semibold">{{ $items->total() }}</span> items
+                                <form action="{{ route('admin.departement.destroy', $dept->id) }}"
+                                      method="POST"
+                                      onsubmit="return confirm('Delete this department?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="px-3 py-1 bg-red-600 text-white rounded text-xs">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="text-center py-8 text-gray-400">
+                            No departments found
+                        </td>
+                    </tr>
+                @endforelse
+                </tbody>
+            </table>
         </div>
 
-        <div class="flex items-center gap-2">
-            <a href="{{ $items->previousPageUrl() ?? '#' }}"
-               class="px-4 py-2 text-sm font-medium rounded-lg {{ $items->onFirstPage() ? 'bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100' }}">
-                Previous
-            </a>
-
-            <a href="{{ $items->nextPageUrl() ?? '#' }}"
-               class="px-4 py-2 text-sm font-medium rounded-lg {{ $items->hasMorePages() ? 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100' : 'bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none' }}">
-                Next
-            </a>
+        <!-- Pagination -->
+        <div class="p-4 border-t">
+            {{ $departements->links('pagination::tailwind') }}
         </div>
     </div>
+
 </div>
 
 @endsection

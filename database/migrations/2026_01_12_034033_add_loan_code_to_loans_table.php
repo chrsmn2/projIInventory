@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Menambahkan kolom loan_code ke tabel loans
+        // Kode unik untuk identifikasi peminjaman
+        // DICOMMENT karena sudah ada di migration create_loans_table
         Schema::table('loans', function (Blueprint $table) {
-            $table->string('loan_code')->unique()->after('id');
+            //$table->string('loan_code')->unique()->after('id');
         });
     }
 
@@ -21,8 +24,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Menghapus kolom loan_code jika rollback
+        // DICOMMENT karena tidak dijalankan
         Schema::table('loans', function (Blueprint $table) {
-            $table->dropColumn('loan_code');
+            //$table->dropColumn('loan_code');
         });
     }
 };
+

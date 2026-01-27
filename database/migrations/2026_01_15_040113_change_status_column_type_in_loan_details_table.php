@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('loan_details', function (Blueprint $table) {
-            $table->string('status')->default('borrowed')->change();
-        });
+        // Schema::table('loan_details', function (Blueprint $table) {
+        //     $table->string('status')->default('borrowed')->change();
+        // });
     }
 
     /**
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('loan_details', function (Blueprint $table) {
-            //
-        });
+        // Schema::table('loan_details', function (Blueprint $table) {
+        //     //
+        // });
     }
 };

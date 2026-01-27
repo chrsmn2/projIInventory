@@ -30,7 +30,7 @@
             profileImg.src = baseUrl + '?' + timestamp;
         }
     }
-}" class="flex h-screen overflow-hidden">
+}" x-init="window.refreshProfilePhoto = refreshProfilePhoto" class="flex h-screen overflow-hidden">
 
     <!-- OVERLAY (HP / TABLET) -->
     <div
@@ -83,7 +83,7 @@
             <div class="flex items-center gap-3">
                 <span class="hidden sm:inline text-sm">{{ auth()->user()->name ?? 'Admin' }}</span>
                 @if(auth()->user()->profile_photo)
-                    <img id="profile-photo-header" src="{{ asset('storage/' . auth()->user()->profile_photo) }}" 
+                    <img id="profile-photo-header" src="{{ asset('storage/' . auth()->user()->profile_photo) }}?{{ time() }}" 
                          alt="{{ auth()->user()->name }}" 
                          class="w-9 h-9 rounded-full object-cover border-2 border-gray-700 cursor-pointer hover:opacity-80 transition" 
                          onclick="window.location.href='{{ route('admin.profile.edit') }}'">

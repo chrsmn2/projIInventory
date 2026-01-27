@@ -6,13 +6,13 @@
 <div class="max-w-4xl mx-auto">
     <!-- Header -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Pengaturan Profil</h1>
-        <p class="text-gray-600 mt-2">Kelola informasi akun dan keamanan Anda</p>
+        <h1 class="text-3xl font-bold text-gray-900">Profile Settings</h1>
+        <p class="text-gray-600 mt-2">Manage Information Accounts</p>
     </div>
 
     <!-- Success Message -->
     @if (session('success'))
-        <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+        <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg" id="success-message">
             <div class="flex">
                 <div class="flex-shrink-0">
                     <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
@@ -28,28 +28,25 @@
 
     <!-- Profile Info Card -->
     <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
-        <div class="bg-gradient-to-r from-blue-600 to-blue-800 h-32"></div>
-        
-        <div class="px-8 pb-8">
-            <!-- Profile Header -->
-            <div class="flex flex-col sm:flex-row items-start sm:items-end gap-6 -mt-16 mb-8">
+        <div class="bg-gradient-to-r from-gray-700 to-gray-800 h-32 relative">
+            <div class="absolute inset-0 flex items-center px-8 gap-6">
                 @if(auth()->user()->profile_photo)
-                    <img src="{{ asset('storage/' . auth()->user()->profile_photo) }}" 
-                         alt="{{ auth()->user()->name }}" 
-                         class="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover">
+                    <img src="{{ asset('storage/' . auth()->user()->profile_photo) }}?{{ time() }}"
+                         alt="{{ auth()->user()->name }}"
+                         class="w-20 h-20 rounded-full border-4 border-white shadow-lg object-cover">
                 @else
-                    <div class="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center border-4 border-white shadow-lg">
-                        <svg class="h-16 w-16 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                    <div class="w-20 h-20 rounded-full bg-gray-300 flex items-center justify-center border-4 border-white shadow-lg">
+                        <svg class="h-10 w-10 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.7 15.25c4.967 0 9.311 2.684 11.3 6.75z" />
                             <path d="M16.5 5.5a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
                         </svg>
                     </div>
                 @endif
-                <div class="flex-1">
-                    <h2 class="text-3xl font-bold text-gray-900">{{ auth()->user()->name }}</h2>
-                    <p class="text-gray-600">{{ auth()->user()->email }}</p>
+                <div class="flex-1 text-white">
+                    <h2 class="text-2xl font-bold">{{ auth()->user()->name }}</h2>
+                    <p class="text-gray-200">{{ auth()->user()->email }}</p>
                     @if(auth()->user()->position)
-                        <p class="text-sm text-gray-500 mt-1">{{ auth()->user()->position }}
+                        <p class="text-sm text-gray-300 mt-1">{{ auth()->user()->position }}
                             @if(auth()->user()->department)
                                 • {{ auth()->user()->department }}
                             @endif
@@ -57,7 +54,9 @@
                     @endif
                 </div>
             </div>
+        </div>
 
+        <div class="px-8 pb-8">
             <!-- Edit Profile Form -->
             <form action="{{ route('admin.profile.update') }}" method="POST" enctype="multipart/form-data" class="space-y-6 border-t pt-8">
                 @csrf
@@ -67,7 +66,7 @@
                     <!-- Name -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Lengkap *</label>
-                        <input type="text" name="name" value="{{ old('name', auth()->user()->name) }}" 
+                        <input type="text" name="name" value="{{ old('name', auth()->user()->name) }}"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent">
                         @error('name')<span class="text-red-500 text-sm mt-1 block">{{ $message }}</span>@enderror
                     </div>
@@ -75,7 +74,7 @@
                     <!-- Username -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Username</label>
-                        <input type="text" name="username" value="{{ old('username', auth()->user()->username) }}" 
+                        <input type="text" name="username" value="{{ old('username', auth()->user()->username) }}"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent">
                         @error('username')<span class="text-red-500 text-sm mt-1 block">{{ $message }}</span>@enderror
                     </div>
@@ -83,7 +82,7 @@
                     <!-- Phone -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Nomor Telepon</label>
-                        <input type="tel" name="phone" value="{{ old('phone', auth()->user()->phone) }}" 
+                        <input type="tel" name="phone" value="{{ old('phone', auth()->user()->phone) }}"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent">
                         @error('phone')<span class="text-red-500 text-sm mt-1 block">{{ $message }}</span>@enderror
                     </div>
@@ -98,7 +97,7 @@
                     <!-- Department -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Departemen</label>
-                        <input type="text" name="department" value="{{ old('department', auth()->user()->department) }}" 
+                        <input type="text" name="department" value="{{ old('department', auth()->user()->department) }}"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent">
                         @error('department')<span class="text-red-500 text-sm mt-1 block">{{ $message }}</span>@enderror
                     </div>
@@ -106,7 +105,7 @@
                     <!-- Position -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Jabatan</label>
-                        <input type="text" name="position" value="{{ old('position', auth()->user()->position) }}" 
+                        <input type="text" name="position" value="{{ old('position', auth()->user()->position) }}"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent">
                         @error('position')<span class="text-red-500 text-sm mt-1 block">{{ $message }}</span>@enderror
                     </div>
@@ -115,18 +114,18 @@
                 <!-- Address -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Alamat</label>
-                    <textarea name="address" rows="3" 
+                    <textarea name="address" rows="3"
                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent">{{ old('address', auth()->user()->address) }}</textarea>
                     @error('address')<span class="text-red-500 text-sm mt-1 block">{{ $message }}</span>@enderror
                 </div>
 
-                <!-- Bio -->
+                <!--Bio
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Bio</label>
                     <textarea name="bio" rows="3" placeholder="Ceritakan tentang Anda..."
                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent">{{ old('bio', auth()->user()->bio) }}</textarea>
                     @error('bio')<span class="text-red-500 text-sm mt-1 block">{{ $message }}</span>@enderror
-                </div>
+                </div>-->
 
                 <!-- Profile Photo Upload -->
                 <div>
@@ -155,7 +154,7 @@
     <!-- Password Change Card -->
     <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
         <h3 class="text-2xl font-bold text-gray-900 mb-6">Ubah Password</h3>
-        
+
         <form action="{{ route('admin.profile.update-password') }}" method="POST" class="space-y-6 max-w-2xl">
             @csrf
             @method('PATCH')
@@ -190,10 +189,10 @@
     </div>
 
     <!-- Danger Zone -->
-    <div class="bg-white rounded-lg shadow-lg p-8 border-t-4 border-red-600">
+    <!--<div class="bg-white rounded-lg shadow-lg p-8 border-t-4 border-red-600">
         <h3 class="text-2xl font-bold text-red-600 mb-4">Danger Zone</h3>
         <p class="text-gray-600 mb-6">Menghapus akun Anda akan menghapus semua data secara permanen dan tidak dapat dipulihkan.</p>
-        
+
         <form action="{{ route('admin.profile.destroy') }}" method="POST" class="max-w-2xl" onsubmit="return confirm('Apakah Anda yakin ingin menghapus akun ini? Tindakan ini tidak dapat dibatalkan.');">
             @csrf
             @method('DELETE')
@@ -210,7 +209,7 @@
             </button>
         </form>
     </div>
-</div>
+</div>-->
 
 <script>
     // Auto-update header profile photo when image is selected
@@ -229,19 +228,20 @@
         }
     });
 
-    // Auto-refresh header photo after form submission
+    // Auto-refresh header photo after successful update
     document.addEventListener('DOMContentLoaded', function() {
-        const form = document.querySelector('form');
-        if (form && form.action.includes('profile.update')) {
-            form.addEventListener('submit', function(e) {
-                // After successful submission, refresh the header photo
+        // Check if there's a success message indicating profile was updated
+        const successMessage = document.getElementById('success-message');
+        if (successMessage) {
+            // Refresh profile photo in header without full page reload
+            if (window.refreshProfilePhoto) {
+                window.refreshProfilePhoto();
+            } else {
+                // Fallback: reload the page
                 setTimeout(function() {
-                    if (window.Alpine && window.Alpine.store) {
-                        // Alpine refresh
-                        window.location.reload();
-                    }
-                }, 1000);
-            });
+                    window.location.reload();
+                }, 500);
+            }
         }
     });
 </script>

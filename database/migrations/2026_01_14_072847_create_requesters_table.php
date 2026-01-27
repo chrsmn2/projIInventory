@@ -11,15 +11,29 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('requesters', function (Blueprint $table) {
-            $table->id();
-            $table->string('requester_name');
-            $table->string('department');
-            $table->string('contact_phone', 20);
-            $table->string('contact_email')->unique();
-            $table->enum('status', ['active', 'inactive'])->default('active');
-            $table->timestamps();
-        });
+        // Membuat tabel requesters untuk menyimpan data peminjam/pemohon
+        // Schema::create('requesters', function (Blueprint $table) {
+        //     // Primary key auto-increment
+        //     $table->id();
+
+        //     // Nama peminjam (requester)
+        //     $table->string('requester_name');
+
+        //     // Departemen peminjam
+        //     $table->string('department');
+
+        //     // Nomor telepon kontak (maksimal 20 karakter)
+        //     $table->string('contact_phone', 20);
+
+        //     // Email kontak (harus unik)
+        //     $table->string('contact_email')->unique();
+
+        //     // Status requester (active/inactive)
+        //     $table->enum('status', ['active', 'inactive'])->default('active');
+
+        //     // Timestamps untuk created_at dan updated_at
+        //     $table->timestamps();
+        // });
     }
 
     /**
@@ -27,6 +41,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('requesters');
+        // Menghapus tabel requesters jika rollback migration
+        // Schema::dropIfExists('requesters');
     }
 };

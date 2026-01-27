@@ -11,18 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Membuat kolom return_date di tabel loans menjadi nullable
+        // Karena tanggal pengembalian belum diketahui saat peminjaman
         Schema::table('loans', function (Blueprint $table) {
             $table->date('return_date')->nullable()->change();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
+        // Mengembalikan kolom return_date menjadi NOT NULL jika rollback
         Schema::table('loans', function (Blueprint $table) {
-            $table->date('return_date')->nullable()->change();
+            $table->date('return_date')->nullable(false)->change();
         });
     }
 };

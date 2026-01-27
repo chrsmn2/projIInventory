@@ -4,15 +4,19 @@
 
 @section('content')
 
-<div class="bg-white rounded-xl shadow p-6 max-w-2xl mx-auto">
-    <h2 class="text-xl font-bold mb-6">Add New Supplier</h2>
+<div class="max-w-xl mx-auto bg-white rounded-xl shadow-xl border border-gray-200">
+    <div class="px-6 py-4 bg-gradient-to-r from-gray-700 to-gray-800 rounded-t-xl">
+        <h2 class="text-xl font-bold text-white">Add New Vendors</h2>
+        <p class="text-sm text-gray-300">Create a new master data vendors</p>
+    </div>
 
-    <form action="{{ route('admin.suppliers.store') }}" method="POST">
+
+    <form action="{{ route('admin.suppliers.store') }}" method="POST" class="p-6 space-y-5">
         @csrf
 
         <div>
             <label class="block text-sm font-bold text-gray-800">
-                Supplier Code
+                Vendors Code
             </label>
             <input type="text" name="supplier_code"
                    class="w-full mt-1 rounded-lg border border-gray-300
@@ -23,7 +27,7 @@
         </div>
 
         <div class="mb-4">
-            <label class="block text-sm font-medium mb-2">Supplier Name</label>
+            <label class="block text-sm font-medium mb-2">Vendors Name</label>
             <input type="text" name="supplier_name" value="{{ old('supplier_name') }}"
                    class="w-full px-3 py-2 border rounded-lg @error('supplier_name') border-red-500 @enderror"
                    required>

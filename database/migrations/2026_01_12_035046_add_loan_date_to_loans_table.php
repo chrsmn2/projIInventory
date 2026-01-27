@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Menambahkan kolom loan_date ke tabel loans
+        // Tanggal peminjaman
+        // DICOMMENT karena sudah ada di migration create_loans_table
         Schema::table('loans', function (Blueprint $table) {
-            $table->date('loan_date')->after('loan_code');
+           // $table->date('loan_date')->after('loan_code');
         });
     }
 
@@ -21,8 +24,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Menghapus kolom loan_date jika rollback
+        // DICOMMENT karena tidak dijalankan
         Schema::table('loans', function (Blueprint $table) {
-            $table->dropColumn('loan_date');
+           // $table->dropColumn('loan_date');
         });
     }
 };

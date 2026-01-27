@@ -11,22 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('loan_details', function (Blueprint $table) {
-            $table->id();
-            // Relasi ke loans
+        // Schema::create('loan_details', function (Blueprint $table) {
+            /*$table->id();
+            Relasi ke loans
             $table->foreignId('loan_id')
                   ->constrained('loans')
                   ->cascadeOnDelete();
 
-            // Relasi ke items
+            Relasi ke items
             $table->foreignId('item_id')
                   ->constrained('items')
                   ->cascadeOnDelete();
 
-            // Jumlah dipinjam
+            Jumlah dipinjam
             $table->integer('quantity');
 
-            // Jumlah dikembalikan
+            Jumlah dikembalikan
             if (!Schema::hasColumn('loan_details', 'returned_quantity')) {
                 $table->integer('returned_quantity')->default(0);
             }
@@ -49,8 +49,8 @@ return new class extends Migration
                     ->nullOnDelete();
             }
             $table->timestamp('approved_at')->nullable();
-            $table->timestamps();
-        });
+            $table->timestamps();*/
+        // });
     }
 
     /**
@@ -58,6 +58,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('loan_details');
+        // Schema::dropIfExists('loan_details');
     }
 };

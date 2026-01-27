@@ -7,7 +7,7 @@
 
     <!-- HEADER -->
     <div class="px-6 py-4 bg-gradient-to-r from-gray-700 to-gray-800 rounded-t-xl">
-        <h2 class="text-lg font-semibold text-white">Edit Item</h2>
+        <h2 class="text-lg font-semibold text-white">Update Item</h2>
     </div>
 
     <!-- FORM -->
@@ -21,7 +21,7 @@
             <input type="text" id="item_code" name="item_code" value="{{ $item->item_code }}" 
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 outline-none" 
                    disabled>
-            <p class="text-xs text-gray-500 mt-1">🔒 Item code cannot be changed</p>
+            <p class="text-xs text-gray-500 mt-1"> Item code cannot be changed</p>
         </div>
 
         <!-- Item Name -->
@@ -56,9 +56,8 @@
             <select id="condition" name="condition" 
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none @error('condition') border-red-500 @enderror" required>
                 <option value="">-- Select Condition --</option>
-                <option value="Good" {{ old('condition', $item->condition) == 'Good' ? 'selected' : '' }}>Good</option>
-                <option value="Fair" {{ old('condition', $item->condition) == 'Fair' ? 'selected' : '' }}>Fair</option>
-                <option value="Poor" {{ old('condition', $item->condition) == 'Poor' ? 'selected' : '' }}>Poor</option>
+                <option value="good" {{ old('condition', $item->condition) == 'good' ? 'selected' : '' }}>Good</option>
+                <option value="damaged" {{ old('condition', $item->condition) == 'damaged' ? 'selected' : '' }}>Damaged</option>
             </select>
             @error('condition') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
         </div>
@@ -66,7 +65,7 @@
         <!-- Minimum Stock -->
         <div class="mb-4">
             <label for="min_stock" class="block text-sm font-bold text-gray-700 mb-2">Minimum Stock <span class="text-red-500">*</span></label>
-            <input type="number" id="min_stock" name="min_stock" value="{{ old('min_stock', $item->minimum_stocks) }}" min="0"
+            <input type="number" id="min_stock" name="min_stock" value="{{ old('min_stock', $item->min_stock) }}" min="0"
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none @error('min_stock') border-red-500 @enderror" 
                    placeholder="Enter minimum stock level" required>
             @error('min_stock') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
@@ -95,7 +94,7 @@
             <input type="number" id="stock" name="stock" value="{{ $item->stock }}" 
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 outline-none" 
                    disabled>
-            <p class="text-xs text-gray-500 mt-1">🔒 Stock is managed automatically through incoming and outgoing transactions</p>
+            <p class="text-xs text-gray-500 mt-1"> Stock is managed automatically through incoming and outgoing transactions</p>
         </div>
 
         <!-- Description -->
@@ -125,10 +124,10 @@
     });
 </script>
 
-                ✓ Update
+                Update
             </button>
             <a href="{{ route('admin.items.index') }}" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-400 transition">
-                ✕ Cancel
+                 Cancel
             </a>
         </div>
     </form>

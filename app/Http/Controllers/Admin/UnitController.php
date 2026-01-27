@@ -32,13 +32,17 @@ class UnitController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:100',
+            'name' => 'required|string|max:100|unique:units,name',
             'description' => 'nullable|string',
+        ], [
+            'name.unique' => 'Unit name already exists. Please choose a different name.',
+            'name.required' => 'Unit name is required.',
+            'name.max' => 'Unit name cannot exceed 100 characters.',
         ]);
 
         // 1. Ambil prefix dari departement_name (karena $request->name tidak ada di form Anda)
         // 2. TENTUKAN PREFIX PERMANEN
-        $prefix = 'UNT';
+        $prefix = 'UNT-';
 
         // 3. CARI NOMOR URUT TERAKHIR
         // Mengambil supplier dengan kode berawalan VEN yang urutannya paling besar
@@ -76,8 +80,12 @@ class UnitController extends Controller
     public function update(Request $request, Unit $unit)
     {
         $request->validate([
-            'name' => 'required|string|max:100',
+            'name' => 'required|string|max:100|unique:units,name,' . $unit->id,
             'description' => 'nullable|string',
+        ], [
+            'name.unique' => 'Unit name already exists. Please choose a different name.',
+            'name.required' => 'Unit name is required.',
+            'name.max' => 'Unit name cannot exceed 100 characters.',
         ]);
 
         // CODE TIDAK DIUPDATE

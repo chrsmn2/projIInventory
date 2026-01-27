@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ProfileUpdateRequest;
 use App\Http\Requests\Admin\PasswordChangeRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
@@ -17,7 +20,7 @@ class ProfileController extends Controller
     public function edit()
     {
         return view('admin.profile.index', [
-            'user' => auth()->user(),
+            'user' => Auth::user(),
         ]);
     }
 
@@ -26,7 +29,8 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request)
     {
-        $user = auth()->user();
+        /** @var User $user */
+        $user = Auth::user();
         $validated = $request->validated();
 
         // Handle photo upload
@@ -39,9 +43,15 @@ class ProfileController extends Controller
             // Store new photo
             $photoPath = $request->file('profile_photo')->store('profile-photos', 'public');
             $validated['profile_photo'] = $photoPath;
+
+            // Debug: Log the photo path
+            Log::info('Profile photo uploaded: ' . $photoPath);
         }
 
         $user->update($validated);
+
+        // Refresh the authenticated user to update session data
+        Auth::setUser($user->fresh());
 
         return redirect()->route('admin.profile.edit')
             ->with('success', 'Profil berhasil diperbarui!');
@@ -54,7 +64,9 @@ class ProfileController extends Controller
     {
         $validated = $request->validated();
 
-        auth()->user()->update([
+        /** @var User $user */
+        $user = Auth::user();
+        $user->update([
             'password' => Hash::make($validated['password']),
         ]);
 
@@ -74,7 +86,8 @@ class ProfileController extends Controller
             'password.current_password' => 'Password tidak sesuai.',
         ]);
 
-        $user = auth()->user();
+        /** @var User $user */
+        $user = Auth::user();
 
         // Delete profile photo if exists
         if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
@@ -91,3 +104,4 @@ class ProfileController extends Controller
         return redirect('/')->with('status', 'Akun berhasil dihapus.');
     }
 }
+  

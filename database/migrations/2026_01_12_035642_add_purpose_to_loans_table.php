@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Menambahkan kolom purpose ke tabel loans
+        // Tujuan peminjaman
+        // DICOMMENT karena sudah ada di migration create_loans_table
         Schema::table('loans', function (Blueprint $table) {
-            $table->string('purpose')->after('department');
+            //$table->string('purpose')->after('department');
         });
     }
 
@@ -21,8 +24,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Menghapus kolom purpose jika rollback
+        // DICOMMENT karena tidak dijalankan
         Schema::table('loans', function (Blueprint $table) {
-            $table->dropColumn('purpose');
+            //$table->dropColumn('purpose');
         });
     }
 };

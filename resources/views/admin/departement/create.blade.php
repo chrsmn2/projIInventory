@@ -7,8 +7,8 @@
 <div class="max-w-xl mx-auto bg-white rounded-xl shadow-xl border border-gray-200">
 
     <div class="px-6 py-4 bg-gradient-to-r from-gray-700 to-gray-800 rounded-t-xl">
-        <h2 class="text-xl font-bold text-black">Add New Departement</h2>
-        <p class="text-sm text-gray-500">Create a new master data departement</p>
+        <h2 class="text-xl font-bold text-white">Add New Departement</h2>
+        <p class="text-sm text-gray-300">Create a new master data departement</p>
     </div>
 
     <form action="{{ route('admin.departement.store') }}"
@@ -48,8 +48,8 @@
             <select name="condition" 
                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-blue-500 focus:border-blue-500 @error('condition') border-red-500 @enderror"
                     required>
-                <option value="normal" {{ old('condition') === 'normal' ? 'selected' : '' }}>Normal (Active)</option>
-                <option value="broken" {{ old('condition') === 'broken' ? 'selected' : '' }}>Broken (Inactive)</option>
+                <option value="normal" {{ old('condition') === 'normal' ? 'selected' : '' }}>Active</option>
+                <option value="broken" {{ old('condition') === 'broken' ? 'selected' : '' }}>Inactive</option>
             </select>
             @error('condition') 
                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p> 

@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('loan_details', function (Blueprint $table) {
+        /*Schema::table('loan_details', function (Blueprint $table) {
              $table->string('condition_out')
                   ->nullable()
                   ->after('returned_quantity');
-        });
+        });*/
     }
 
     /**
@@ -23,8 +23,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('loan_details', function (Blueprint $table) {
-            $table->dropColumn('condition_out');
-        });
+        // Schema::table('loan_details', function (Blueprint $table) {
+        //     //$table->dropColumn('condition_out');
+        // });
     }
 };

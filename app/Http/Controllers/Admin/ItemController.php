@@ -35,28 +35,39 @@ class ItemController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'item_name'   => 'required|string|max:255',
+            'item_name'   => 'required|string|max:255|unique:items,item_name',
             'category_id' => 'required|exists:categories,id',
             'unit_id'     => 'required|exists:units,id',
-            'condition'   => 'required|in:Good,Fair,Poor',
+            // Migration defines condition as: ['good','damaged']
+            'condition'   => 'required|in:good,damaged',
             'min_stock'   => 'required|integer|min:0',
             'description' => 'nullable|string',
+        ], [
+            'item_name.unique' => 'Item name already exists. Please choose a different name.',
+            'item_name.required' => 'Item name is required.',
+            'item_name.max' => 'Item name cannot exceed 255 characters.',
+            'category_id.required' => 'Please select a category.',
+            'category_id.exists' => 'Selected category does not exist.',
+            'unit_id.required' => 'Please select a unit.',
+            'unit_id.exists' => 'Selected unit does not exist.',
+            'condition.required' => 'Please select item condition.',
+            'condition.in' => 'Invalid condition selected.',
+            'min_stock.required' => 'Minimum stock is required.',
+            'min_stock.integer' => 'Minimum stock must be a number.',
+            'min_stock.min' => 'Minimum stock cannot be negative.',
         ]);
 
         // Get category untuk prefix code
         $category = Category::findOrFail($validated['category_id']);
         $categoryCode = $category->code;
 
-        // Auto generate code: CATCODE-ITM-001
-        $prefix = $categoryCode . '-ITM-';
+        // Compute the maximum ITM number globally across all items
+        $maxNumber = Item::where('item_code', 'like', '%-ITM-%')
+            ->selectRaw('MAX(CAST(substr(item_code, INSTR(item_code, \'-ITM-\') + 5) AS INTEGER)) as max_num')
+            ->value('max_num') ?? 0;
 
-        $last = Item::where('item_code', 'like', $prefix.'%')
-            ->orderBy('item_code', 'desc')
-            ->first();
-
-        $number = $last ? intval(substr($last->item_code, strlen($prefix))) + 1 : 1;
-        $code = $prefix . str_pad($number, 3, '0', STR_PAD_LEFT);
-
+        $number = intval($maxNumber) + 1;
+        $code = $categoryCode . '-ITM-' . str_pad($number, 3, '0', STR_PAD_LEFT);
         Item::create([
             'item_code'       => $code,
             'item_name'       => $validated['item_name'],
@@ -81,12 +92,25 @@ class ItemController extends Controller
     public function update(Request $request, Item $item)
     {
         $validated = $request->validate([
-            'item_name'   => 'required|string|max:255',
+            'item_name'   => 'required|string|max:255|unique:items,item_name,' . $item->id,
             'category_id' => 'required|exists:categories,id',
             'unit_id'     => 'required|exists:units,id',
-            'condition'   => 'required|in:Good,Fair,Poor',
+            'condition'   => 'required|in:good,damaged',
             'min_stock'   => 'required|integer|min:0',
             'description' => 'nullable|string',
+        ], [
+            'item_name.unique' => 'Item name already exists. Please choose a different name.',
+            'item_name.required' => 'Item name is required.',
+            'item_name.max' => 'Item name cannot exceed 255 characters.',
+            'category_id.required' => 'Please select a category.',
+            'category_id.exists' => 'Selected category does not exist.',
+            'unit_id.required' => 'Please select a unit.',
+            'unit_id.exists' => 'Selected unit does not exist.',
+            'condition.required' => 'Please select item condition.',
+            'condition.in' => 'Invalid condition selected.',
+            'min_stock.required' => 'Minimum stock is required.',
+            'min_stock.integer' => 'Minimum stock must be a number.',
+            'min_stock.min' => 'Minimum stock cannot be negative.',
         ]);
 
         // 🔒 Code dan Stock TIDAK BISA diubah

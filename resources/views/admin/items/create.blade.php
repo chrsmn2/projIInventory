@@ -71,9 +71,8 @@
             <select id="condition" name="condition" 
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none @error('condition') border-red-500 @enderror" required>
                 <option value="">-- Select Condition --</option>
-                <option value="Good" {{ old('condition') == 'Good' ? 'selected' : '' }}>Good</option>
-                <option value="Fair" {{ old('condition') == 'Fair' ? 'selected' : '' }}>Fair</option>
-                <option value="Poor" {{ old('condition') == 'Poor' ? 'selected' : '' }}>Poor</option>
+                <option value="good" {{ old('condition') == 'good' ? 'selected' : '' }}>Good</option>
+                <option value="damaged" {{ old('condition') == 'damaged' ? 'selected' : '' }}>Damaged</option>
             </select>
             @error('condition') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
         </div>
@@ -93,7 +92,7 @@
             <input type="number" id="stock" name="stock" value="0" 
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 outline-none" 
                    placeholder="Auto (from incoming/outgoing)" disabled>
-            <p class="text-xs text-gray-500 mt-1">💡 Stock is managed automatically through incoming and outgoing transactions</p>
+            <p class="text-xs text-gray-500 mt-1"> Stock is managed automatically through incoming and outgoing transactions</p>
         </div>
 
         <!-- Description -->
@@ -108,10 +107,10 @@
         <!-- Buttons -->
         <div class="flex gap-4 border-t pt-6">
             <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition">
-                ✓ Save
+                Save
             </button>
             <a href="{{ route('admin.items.index') }}" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-400 transition">
-                ✕ Cancel
+                Cancel
             </a>
         </div>
     </form>

@@ -7,7 +7,7 @@
 
     <!-- HEADER -->
     <div class="px-6 py-4 bg-gradient-to-r from-gray-700 to-gray-800 rounded-t-xl">
-        <h2 class="text-xl font-bold text-black">Incoming Item Details</h2>
+        <h2 class="text-xl font-bold text-white">Incoming Item Details</h2>
     </div>
 
     <div class="p-6 space-y-6">
@@ -104,12 +104,12 @@
         <!-- BUTTONS -->
         <div class="flex gap-4 border-t pt-6">
             <a href="{{ route('admin.incoming.edit', $incoming->id) }}" 
-               class="px-6 py-2 bg-amber-500 text-black font-bold rounded-lg hover:bg-amber-600 transition">
-                ✎ Edit
+               class="px-6 py-2 bg-amber-500 text-black font-bold rounded-lg hover:bg-green-600 transition">
+                Update
             </a>
             <a href="{{ route('admin.incoming.index') }}" 
-               class="px-6 py-2 bg-gray-100 text-gray-600 font-bold rounded-lg hover:bg-gray-200 transition">
-                ← Back
+               class="px-6 py-2 bg-gray-100 text-gray-600 font-bold rounded-lg hover:bg-gray-500 transition">
+                Back
             </a>
         </div>
 

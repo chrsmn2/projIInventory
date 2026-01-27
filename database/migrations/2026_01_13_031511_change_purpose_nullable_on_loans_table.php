@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('loans', function (Blueprint $table) {
-            $table->text('purpose')->nullable()->change();
-        });
+        // Mengubah kolom purpose di tabel loans menjadi nullable
+        // Karena tujuan peminjaman boleh kosong/tidak wajib diisi
+        // Schema::table('loans', function (Blueprint $table) {
+        //     $table->text('purpose')->nullable()->change();
+        // });
     }
 
     /**
@@ -21,8 +23,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('loans', function (Blueprint $table) {
-            $table->text('purpose')->nullable(false)->change();
-        });
+        // Mengembalikan kolom purpose menjadi NOT NULL jika rollback
+        // Schema::table('loans', function (Blueprint $table) {
+        //     $table->text('purpose')->nullable(false)->change();
+        // });
     }
 };

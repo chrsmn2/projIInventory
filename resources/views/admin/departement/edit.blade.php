@@ -4,11 +4,11 @@
 
 @section('content')
 
-<div class="max-w-xl mx-auto bg-white rounded-xl shadow-xl border">
+<div class="max-w-xl mx-auto bg-white rounded-xl shadow-xl border border-gray-200">
 
-    <div class="px-6 py-4 bg-blue-600 rounded-t-xl">
-        <h2 class="text-xl font-bold text-black">Update Departement</h2>
-        <p class="text-sm text-gray-500">Update departement information</p>
+    <div class="px-6 py-4 bg-gradient-to-r from-gray-700 to-gray-800 rounded-t-xl">
+        <h2 class="text-xl font-bold text-white">Update Departement</h2>
+        <p class="text-sm text-gray-300">Update departement information</p>
     </div>
 
     <form action="{{ route('admin.departement.update', $departement->id) }}"
@@ -38,31 +38,15 @@
         </div>
 
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-                Condition
-            </label>
-
-            <div class="flex items-center gap-6">
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio"
-                           name="condition"
-                           value="normal"
-                           {{ old('condition', $departement->is_active == 1 ? 'normal' : 'damaged') === 'normal' ? 'checked' : '' }}
-                           class="text-gray-700 focus:ring-blue-500">
-                    <span class="text-sm">Normal</span>
-                </label>
-
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio"
-                           name="condition"
-                           value="damaged"
-                           {{ old('condition', $departement->is_active == 1 ? 'normal' : 'damaged') === 'damaged' ? 'checked' : '' }}
-                           class="text-red-600 focus:ring-red-500">
-                    <span class="text-sm">Damaged</span>
-                </label>
-            </div>
-            @error('condition')
-                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+            <label class="block text-sm font-bold text-gray-800 mb-1">Status/Condition</label>
+            <select name="condition" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-blue-500 focus:border-blue-500 @error('condition') border-red-500 @enderror"
+                    required>
+                <option value="normal" {{ old('condition') === 'normal' ? 'selected' : '' }}>Active</option>
+                <option value="broken" {{ old('condition') === 'broken' ? 'selected' : '' }}>Inactive</option>
+            </select>
+            @error('condition') 
+                <p class="text-red-500 text-xs mt-1">{{ $message }}</p> 
             @enderror
         </div>
 

@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Menambahkan kolom department ke tabel loans
+        // Departemen peminjam
+        // DICOMMENT karena sudah ada di migration create_loans_table
         Schema::table('loans', function (Blueprint $table) {
-            $table->string('department')->after('borrower_name');
+            //$table->string('department')->after('borrower_name');
         });
     }
 
@@ -21,8 +24,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Menghapus kolom department jika rollback
+        // DICOMMENT karena tidak dijalankan
         Schema::table('loans', function (Blueprint $table) {
-            $table->dropColumn('department');
+            //$table->dropColumn('department');
         });
     }
 };

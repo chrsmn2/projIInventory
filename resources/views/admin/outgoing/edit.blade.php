@@ -6,7 +6,7 @@
 <div class="max-w-4xl mx-auto bg-white rounded-xl shadow border border-gray-200">
 
     <div class="px-6 py-4 bg-gradient-to-r from-gray-700 to-gray-800 rounded-t-xl flex justify-between items-center">
-        <h2 class="text-xl font-bold text-black">Edit Outgoing Item</h2>
+        <h2 class="text-xl font-bold text-white">Edit Outgoing Item</h2>
         <a href="{{ route('admin.outgoing.index') }}" class="text-gray-300 hover:text-white text-sm">&larr; Back to List</a>
     </div>
 
@@ -92,8 +92,10 @@
                                     <td class="px-4 py-2">
                                         <input type="text" class="unit-display w-full px-3 py-2 border rounded-lg text-sm bg-gray-50 text-gray-500" readonly placeholder="Unit">
                                     </td>
-                                    <td class="px-4 py-2 text-center">
-                                        <button type="button" onclick="removeItem(this)" class="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition">Remove</button>
+                                    <td class="p-2 text-center">
+                                        <button type="button" class="btn-remove-item px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600">
+                                            ✕
+                                        </button>
                                     </td>
                                 </tr>
                             @endforeach
@@ -111,10 +113,10 @@
 
         <div class="mt-8 flex gap-4 border-t pt-6">
             <button type="submit" class="px-6 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition">
-                ✓ Update Outgoing
+                Update Outgoing
             </button>
             <a href="{{ route('admin.outgoing.show', $outgoing->id) }}" class="px-6 py-2 bg-gray-100 text-gray-600 font-bold rounded-lg hover:bg-gray-200 transition">
-                ✕ Cancel
+                Cancel
             </a>
         </div>
     </form>
@@ -163,8 +165,10 @@ function addItem() {
         <td class="px-4 py-2">
             <input type="text" class="unit-display w-full px-3 py-2 border rounded-lg text-sm bg-gray-50 text-gray-500" readonly placeholder="Unit">
         </td>
-        <td class="px-4 py-2 text-center">
-            <button type="button" onclick="removeItem(this)" class="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition">Remove</button>
+        <td class="p-2 text-center">
+                    <button type="button" class="btn-remove-item px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600">
+                        ✕
+                    </button>
         </td>
     `;
     container.appendChild(newRow);

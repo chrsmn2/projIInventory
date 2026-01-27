@@ -11,38 +11,52 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('loans', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-            $table->string('loan_code')->unique();
-            $table->date('loan_date');
+        // Membuat tabel loans untuk menyimpan data peminjaman barang
+        // Schema::create('loans', function (Blueprint $table) {
+        //     // Primary key auto-increment
+        //     $table->id();
 
-            // data peminjam
-            $table->string('requesters_name');
-            $table->string('department');
-            $table->text('purpose')->nullable();
+        //     // Timestamps untuk created_at dan updated_at
+        //     $table->timestamps();
 
-            // status approval
-            $table->enum('status', [
-                'pending',
-                'approved',
-                'rejected',
-                'returned'
-            ])->default('pending');
+        //     // Kode unik untuk identifikasi peminjaman (format: LNN-YYYYMMDD-XXX)
+        //     $table->string('loan_code')->unique();
 
-            // pencatat
-            $table->foreignId('admin_id')
-                ->constrained('users')
-                ->cascadeOnDelete();
+        //     // Tanggal peminjaman
+        //     $table->date('loan_date');
 
-            // APPROVER (SUPERVISOR)
-            $table->foreignId('approved_by')
-                ->nullable()
-                ->constrained('users')
-                ->nullOnDelete();
+        //     // Data peminjam
+        //     // Nama peminjam (requester)
+        //     $table->string('requesters_name');
 
-            $table->timestamp('approved_at')->nullable();
-        });
+        //     // Departemen peminjam
+        //     $table->string('department');
+
+        //     // Tujuan peminjaman (opsional)
+        //     $table->text('purpose')->nullable();
+
+        //     // Status approval peminjaman
+        //     $table->enum('status', [
+        //         'pending',   // Menunggu approval
+        //         'approved',  // Sudah diapprove supervisor
+        //         'rejected',  // Ditolak supervisor
+        //         'returned'   // Barang sudah dikembalikan
+        //     ])->default('pending');
+
+        //     // ID admin yang mencatat peminjaman (foreign key ke users)
+        //     $table->foreignId('admin_id')
+        //         ->constrained('users')  // Relasi ke tabel users
+        //         ->cascadeOnDelete();    // Jika user dihapus, hapus juga loan
+
+        //     // ID supervisor yang menyetujui (foreign key ke users, nullable karena belum diapprove)
+        //     $table->foreignId('approved_by')
+        //         ->nullable()           // Boleh null jika belum diapprove
+        //         ->constrained('users') // Relasi ke tabel users
+        //         ->nullOnDelete();      // Jika user dihapus, set null
+
+        //     // Timestamp kapan diapprove
+        //     $table->timestamp('approved_at')->nullable();
+        // });
     }
 
     /**
@@ -50,6 +64,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('loans');
+        // Menghapus tabel loans jika rollback migration
+        // Schema::dropIfExists('loans');
     }
 };

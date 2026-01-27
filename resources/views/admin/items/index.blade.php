@@ -4,251 +4,181 @@
 
 @section('content')
 
-
-<div class="bg-white rounded-xl shadow border border-gray-200">
-
-    <!-- HEADER -->
-<div class="flex items-center justify-between px-6 py-4 rounded-t-xl
-                bg-gradient-to-r from-gray-700 to-gray-800">
-
-    <div>
-        <h2 class="text-xl font-semibold text-black">Items</h2>
-        <p class="text-sm text-gray-500">
-            Master data inventory items (stock is read-only)
-        </p>
-    </div>
-
-    <!-- RIGHT SIDE: Search, Show, +Add Item -->
-    <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full md:w-auto">
-
-        <!-- LEFT SIDE: Search + Show -->
-        <div class="flex flex-col sm:flex-row sm:items-center gap-2 flex-1">
-            
-            <!-- SEARCH -->
-            <form method="GET" class="flex gap-2 flex-1 sm:flex-none">
-                <input type="text"
-                    name="search"
-                    value="{{ $search }}"
-                    placeholder="Search item..."
-                    class="px-3 py-2 border rounded-lg text-sm w-full sm:w-48 focus:ring focus:ring-blue-200">
-
-                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">
-                    Search
-                </button>
-            </form>
-
-            <!-- SHOW PER PAGE -->
-            <form method="GET" class="flex items-center">
-                <input type="hidden" name="search" value="{{ $search }}">
-                <select name="per_page"
-                        onchange="this.form.submit()"
-                        class="px-3 py-2 border rounded-lg text-sm">
-                    @foreach([5,10,25,50] as $size)
-                        <option value="{{ $size }}" {{ $perPage == $size ? 'selected' : '' }}>
-                            Show {{ $size }}
-                        </option>
-                    @endforeach
-                </select>
-            </form>
-
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Items</h1>
+            <p class="text-gray-600 mt-1">Manage inventory items</p>
         </div>
 
-        <!-- RIGHT SIDE: +Add Item -->
         <a href="{{ route('admin.items.create') }}"
-           class="inline-flex items-center justify-center gap-2
-                  px-4 py-2
-                  bg-emerald-500 text-white
-                  font-semibold text-sm
-                  rounded-lg
-                  hover:bg-emerald-600
-                  transition
-                  ml-auto mt-2 sm:mt-0">
-            + Add Item
+           class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            Add Item
         </a>
-
-    </div>
-</div>
-
-
-    <!-- TABLE -->
-    <div class="p-6 overflow-x-auto">
-        <table class="w-full min-w-[900px] text-sm border border-gray-200 rounded-lg overflow-hidden">
-
-            <thead class="bg-gray-100 text-gray-700 uppercase text-xs">
-                <tr>
-                    <th class="px-4 py-3 text-left">No</th>
-                    <th class="px-4 py-3 text-left">Item Code</th>
-                    <th class="px-4 py-3 text-left">Item Name</th>
-                    <th class="px-4 py-3 text-left">Category</th>
-                    <th class="px-4 py-3 text-center">Condition</th>
-                    <th class="px-4 py-3 text-left">Description</th>
-                    <th class="px-4 py-3 text-center">Min</th>
-                    <th class="px-4 py-3 text-center">Stock</th>
-                    <th class="px-4 py-3 text-left">Unit</th>
-                    <th class="px-4 py-3 text-center">Action</th>
-
-                </tr>
-            </thead>
-
-            <tbody class="divide-y bg-white">
-            @forelse ($items as $item)
-            <tr class="hover:bg-gray-50 transition">
-
-                <!-- NO -->
-                <td class="px-4 py-3 text-center">
-                    {{ $items->firstItem() + $loop->index }}
-                </td>
-
-                <!-- ITEM CODE-->
-                <td class="px-4 py-3 font-semibold text-gray-800">
-                    {{ $item->item_code }}
-                </td>
-
-                <!-- ITEM NAME -->
-                <td class="px-4 py-3 font-semibold text-gray-800">
-                    {{ $item->item_name }}
-                </td>
-
-                <!-- CATEGORY -->
-                <td class="px-4 py-3 text-gray-600">
-                    {{ $item->category->name ?? '-' }}
-                </td>
-
-                <!-- CONDITION -->
-                <td class="px-4 py-3 text-center">
-                    <span class="px-3 py-1 rounded-full text-xs font-semibold
-                        {{ $item->condition === 'normal'
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-red-100 text-red-700' }}">
-                        {{ ucfirst($item->condition) }}
-                    </span>
-                </td>
-
-                <!-- DESCRIPTION -->
-                <td class="px-4 py-3 text-gray-600 max-w-xs truncate">
-                    {{ $item->description ?? '-' }}
-                </td>
-
-                <!-- MINIMUM STOCK -->
-                <td class="px-4 py-3 text-center font-bold">            
-                    <span class="px-3 py-1 rounded-full text-xs
-                        {{ $item->stock >= $item->min_stock
-                            ? 'bg-blue-100 text-blue-700'
-                            : 'bg-orange-100 text-orange-700' }}">
-                        {{ $item->min_stock }}
-                    </span>
-                </td>
-
-                <!-- STOCK (READ ONLY - BUSINESS RULE BASED) -->
-                <td class="px-4 py-3 text-center font-bold">
-                    <span class="px-3 py-1 rounded-full text-xs font-semibold
-                        {{ $item->stock >= $item->min_stock
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-red-100 text-red-700' }}">
-                        {{ $item->stock }}
-                    </span>
-                </td>
-
-
-                <!-- UNITS -->
-                <td class="px-6 py-3 text-gray-600">
-                    {{ $item->unit->name ?? '-' }}
-                </td>
-
-                <!-- ACTION -->
-                <td class="px-4 py-3">
-                    <div class="flex justify-center gap-2">
-
-                        <!-- EDIT -->
-                        <a href="{{ route('admin.items.edit', $item) }}"
-                        class="px-3 py-1.5 text-xs font-semibold
-                                bg-blue-600 text-white
-                                rounded hover:bg-blue-700 transition">
-                            Update
-                        </a>
-
-                        <!-- DELETE (SAFE MODE) -->
-                        @if ($item->stock > 0 || $item->loanDetails()->exists())
-    <button
-        disabled
-        title="Item sudah memiliki stock / transaksi"
-        class="px-3 py-1.5 text-xs font-semibold
-               bg-gray-300 text-gray-500
-               rounded cursor-not-allowed">
-        Delete
-    </button>
-@else
-    <form action="{{ route('admin.items.destroy', $item) }}"
-          method="POST"
-          onsubmit="return confirm('Delete this item?')">
-        @csrf
-        @method('DELETE')
-        <button class="px-3 py-1.5 text-xs font-semibold
-                       bg-red-600 text-white
-                       rounded hover:bg-red-700">
-            Delete
-        </button>
-    </form>
-@endif
-
-
-                    </div>
-                </td>
-
-            </tr>
-            @empty
-            <tr>
-                <td colspan="8"
-                    class="px-6 py-10 text-center text-gray-400 italic">
-                    No items available
-                </td>
-            </tr>
-            @endforelse
-            </tbody>
-
-        </table>
     </div>
 
+    @if (session('success'))
+        <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div class="flex">
+                <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <p class="ml-3 text-sm font-medium text-green-800">{{ session('success') }}</p>
+            </div>
+        </div>
+    @endif
 
-    <!-- PAGINATION -->
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-6">
+    <!-- Search and Filters -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex flex-col sm:flex-row gap-4">
+            <div class="flex-1">
+                <form method="GET" class="flex gap-2">
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Search items..."
+                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        Search
+                    </button>
+                </form>
+            </div>
 
-    <!-- INFO JUMLAH DATA -->
-    <div class="text-sm text-gray-600">
-        Showing
-        <span class="font-semibold">{{ $items->firstItem() }}</span>
-        –
-        <span class="font-semibold">{{ $items->lastItem() }}</span>
-        of
-        <span class="font-semibold">{{ $items->total() }}</span>
-        items
+            <div class="sm:w-48">
+                <form method="GET">
+                    <input type="hidden" name="search" value="{{ $search }}">
+                    <select name="per_page" onchange="this.form.submit()"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        @foreach([5,10,25,50] as $size)
+                            <option value="{{ $size }}" {{ $perPage == $size ? 'selected' : '' }}>
+                                Show {{ $size }}
+                            </option>
+                        @endforeach
+                    </select>
+                </form>
+            </div>
+        </div>
     </div>
 
-    <!-- BUTTON -->
-<div class="flex items-center gap-2 mt-4">
-    <!-- PREVIOUS -->
-    <a href="{{ $items->previousPageUrl() ?? '#' }}"
-       class="px-4 py-2 text-sm font-medium rounded-lg
-              {{ $items->onFirstPage()
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none'
-                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100' }}">
-        <<  
-    </a>
+    <!-- Table -->
+    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full min-w-[800px] text-sm">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-900">No</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-900">Code</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-900">Item Name</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-900">Category</th>
+                        <th class="px-6 py-4 text-center font-semibold text-gray-900">Condition</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-900">Description</th>
+                        <th class="px-6 py-4 text-center font-semibold text-gray-900">Min Stock</th>
+                        <th class="px-6 py-4 text-center font-semibold text-gray-900">Stock</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-900">Unit</th>
+                        <th class="px-6 py-4 text-center font-semibold text-gray-900">Actions</th>
+                    </tr>
+                </thead>
 
-    <!-- NEXT -->
-    <a href="{{ $items->nextPageUrl() ?? '#' }}"
-       class="px-4 py-2 text-sm font-medium rounded-lg
-              {{ $items->hasMorePages()
-                    ? 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100'
-                    : 'bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none' }}">
-        >>  
-    </a>
-</div>
+                <tbody class="divide-y divide-gray-200">
+                    @forelse ($items as $item)
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 text-gray-900 font-medium">
+                                {{ $items->firstItem() + $loop->index }}
+                            </td>
 
-</div>
+                            <td class="px-6 py-4">
+                                <span class="font-mono text-blue-600 font-semibold">{{ $item->item_code }}</span>
+                            </td>
 
-</div>
+                            <td class="px-6 py-4 text-gray-900 font-medium">
+                                {{ $item->item_name }}
+                            </td>
 
+                            <td class="px-6 py-4 text-gray-600">
+                                {{ $item->category->name ?? '-' }}
+                            </td>
+
+                            <td class="px-6 py-4 text-center">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    @if($item->condition === 'normal') bg-green-100 text-green-800
+                                    @elseif($item->condition === 'damaged') bg-red-100 text-red-800
+                                    @else bg-yellow-100 text-yellow-800 @endif">
+                                    {{ ucfirst($item->condition) }}
+                                </span>
+                            </td>
+
+                            <td class="px-6 py-4 text-gray-600 max-w-xs truncate">
+                                {{ $item->description ?? '-' }}
+                            </td>
+
+                            <td class="px-6 py-4 text-center text-gray-900 font-medium">
+                                {{ $item->min_stock }}
+                            </td>
+
+                            <td class="px-6 py-4 text-center">
+                                <span class="font-medium {{ $item->stock <= $item->min_stock ? 'text-red-600' : 'text-gray-900' }}">
+                                    {{ $item->stock }}
+                                </span>
+                            </td>
+
+                            <td class="px-6 py-4 text-gray-600">
+                                {{ $item->unit->name ?? '-' }}
+                            </td>
+
+                            <td class="px-6 py-4">
+                                <div class="flex justify-center gap-2">
+                                    <a href="{{ route('admin.items.edit', $item) }}"
+                                    class="p-1 text-blue-600 hover:text-blue-800 transition-colors">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                                        </svg>
+                                    </a>
+
+                                    <form method="POST" action="{{ route('admin.items.destroy', $item) }}"
+                                          onsubmit="return confirm('Are you sure you want to delete this item?')"
+                                          class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="p-1 text-red-600 hover:text-red-800 transition-colors">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="10" class="px-6 py-12 text-center text-gray-500">
+                                <div class="flex flex-col items-center">
+                                    <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                    </svg>
+                                    <p class="text-lg font-medium mb-1">No items found</p>
+                                    <p class="text-sm">Get started by creating your first item</p>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <p class="text-sm text-gray-600">
+                Showing <span class="font-semibold">{{ $items->firstItem() ?? 0 }}</span>
+                to <span class="font-semibold">{{ $items->lastItem() ?? 0 }}</span>
+                of <span class="font-semibold">{{ $items->total() }}</span> items
+            </p>
+
+            <div class="flex justify-center">
+                {{ $items->links('pagination::tailwind') }}
+            </div>
+        </div>
+    </div>
 </div>
 
 @endsection

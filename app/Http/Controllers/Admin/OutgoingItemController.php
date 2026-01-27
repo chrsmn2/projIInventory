@@ -10,6 +10,7 @@ use App\Models\Item;
 use App\Models\Departement;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OutgoingItemController extends Controller
 {
@@ -43,7 +44,7 @@ class OutgoingItemController extends Controller
 
     private function generateOutgoingCode()
     {
-         // Menghasilkan kode unik, misalnya: OUT-2026-0001
+         // Menghasilkan kode unik, misalnya: OUT-001, OUT-002, dll.
         $latest = OutgoingItem::orderBy('created_at', 'desc')->first();
         $number = $latest ? intval(substr($latest->code, -3)) + 1 : 1; // Ambil nomor terakhir dan tambahkan 1
         return 'OUT-' . str_pad($number, 3, '0', STR_PAD_LEFT); // Format kode
@@ -104,8 +105,8 @@ class OutgoingItemController extends Controller
                 ->with('success', '✓ Outgoing items berhasil ditambahkan');
 
         } catch (\Exception $e) {
-            \Log::error('Outgoing Store Error: ' . $e->getMessage());
-            \Log::error($e->getTraceAsString());
+            Log::error('Outgoing Store Error: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
             
             return redirect()->back()
                 ->with('error', '✗ Gagal menambahkan: ' . $e->getMessage())
