@@ -7,60 +7,71 @@
 <div class="max-w-xl mx-auto bg-white rounded-xl shadow-xl border">
 
     <!-- Header -->
-    <div class="fflex flex-col px-8 py-8 rounded-t-xl bg-gradient-to-r from-gray-700 to-gray-800">
-        <h2 class="text-xl font-bold text-white">Update Category</h2>
-        <p class="text-sm text-gray-300">Update category information</p>
+    <div class="px-6 py-4 bg-gradient-to-r from-gray-700 to-gray-800 rounded-t-xl">
+        <h2 class="text-xl font-bold text-white">Category Update</h2>
+        <p class="text-sm text-gray-300">Update category details</p>
     </div>
 
     <!-- Form -->
     <form action="{{ route('admin.categories.update', $category->id) }}"
           method="POST"
-          class="p-6 space-y-5">
+          class="p-6 space-y-3">
         @csrf
         @method('PUT')
 
         <div>
-            <label class="text-sm font-semibold text-gray-800">Code Categories</label>
-            <input type="text" name="code"
-                   value="{{ $category->code }}"
-                   class="w-full mt-1 rounded-lg border border-gray-300 text-gray-900
-                          focus:ring-blue-500 focus:border-blue-500 bg-gray-100"
-                   disabled>
-        </div>
-
-        <div>
-            <label class="text-sm font-semibold text-gray-800">Category Name</label>
-            <input type="text" name="name"
-                   value="{{ old('name', $category->name) }}"
-                   class="w-full mt-1 rounded-lg border @error('name') border-red-500 @else border-gray-300 @enderror text-gray-900
-                          focus:ring-blue-500 focus:border-blue-500"
+            <label class="block text-sm font-bold text-gray-800">
+                Category Name
+            </label>
+            <input type="text" 
+                   id="category_name"
+                   name="category_name"
+                   class="w-full mt-1 rounded-lg border @error('category_name') border-red-500 @else border-gray-300 @enderror
+                          text-gray-900
+                          focus:ring-emerald-500 focus:border-emerald-500"
+                   value="{{ old('category_name', $category->category_name) }}"
                    required>
-            @error('name')
+            @error('category_name')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror
+            @include('admin.partials.check-name', [
+                'type'=>'category', 
+                'inputId'=>'category_name',
+                'original' => $category->category_name,
+                'id' => $category->id
+            ])
         </div>
 
         <div>
-            <label class="text-sm font-semibold text-gray-800">Description</label>
-            <textarea name="description" rows="4"
-                      class="w-full mt-1 rounded-lg border border-gray-300 text-gray-900
-                             focus:ring-blue-500 focus:border-blue-500">{{ $category->description }}</textarea>
+            <label class="block text-sm font-bold text-gray-800">
+                Description
+            </label>
+            <textarea name="category_description"
+                      rows="4"
+                      class="w-full mt-1 rounded-lg border border-gray-300
+                             text-gray-900
+                             focus:ring-emerald-500 focus:border-emerald-500"
+                      placeholder="Optional">{{ old('category_description', $category->category_description) }}</textarea>
         </div>
 
-        <!-- ACTION -->
-
-        <div class="flex justify-end gap-3 pt-4">
+        <div class="flex justify-between pt-4">
             <a href="{{ route('admin.categories.index') }}"
-               class="px-4 py-2 rounded-lg border border-gray-300 text-black hover:bg-gray-100">
-                Cancel
+               class="px-4 py-2 rounded-lg
+                      bg-gray-200 text-gray-800
+                      font-semibold hover:bg-gray-300 transition">
+                 Back
             </a>
 
-
-        <button
-            class="px-6 py-2 rounded-lg bg-emerald-600 text-white font-bold shadow hover:bg-emerald-700 transition">
-            Update Category
-        </button>
+            <button type="submit"
+                class="px-6 py-2 rounded-lg
+                       bg-emerald-600 text-white
+                       font-bold shadow
+                       hover:bg-emerald-700 transition">
+                Update Category
+            </button>
+        </div>
     </form>
+
 </div>
 
 @endsection

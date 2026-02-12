@@ -20,18 +20,18 @@ class DashboardController extends Controller
         $totalItems = Item::count();
         $totalIncoming = IncomingItem::count();
         $totalOutgoing = OutgoingItem::count();
-        
+
         // Stock Alert - items dibawah minimum stok
-        $lowStockCount = Item::where('stock', '<', \DB::raw('min_stock'))
+        $lowStockCount = Item::where('stock', '<', DB::raw('min_stock'))
             ->count();
-        
+
         // Total nilai stok yang rusak/hilang
         $damagedItems = Item::where('condition', 'damaged')->count();
         $lostItems = Item::where('condition', 'lost')->count();
 
         // Master Data Stats
         $totalCategories = Category::count();
-        $totalDepartments = Departement::where('is_active', 1)->count();
+        $totalDepartments = Departement::where('status', 'active')->count();
         $totalVendors = Supplier::count();
         $totalUnits = Unit::count();
 
@@ -48,7 +48,7 @@ class DashboardController extends Controller
 
         // Stock Alert Items - stok dibawah minimum
         $stockAlertItems = Item::with('category', 'unit')
-            ->where('stock', '<', \DB::raw('min_stock'))
+            ->where('stock', '<', DB::raw('min_stock'))
             ->orderBy('stock', 'asc')
             ->limit(15)
             ->get();

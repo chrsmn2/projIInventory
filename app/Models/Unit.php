@@ -12,8 +12,8 @@ class Unit extends Model
     protected $table = 'units';
 
     protected $fillable = [
-        'code',
-        'name',
-        'description',
+        'unit_code',
+        'unit_name',
+        'unit_description',
     ];
 }

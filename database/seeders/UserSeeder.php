@@ -14,20 +14,26 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Admin account
-        User::create([
-            'name' => 'Admin IT',
-            'email' => 'admin@company.com',
-            'password' => Hash::make('password'), // Password terenkripsi
-            'role' => 'admin'
-        ]);
+        // Admin account - use updateOrCreate to avoid duplicates and preserve existing relations
+        User::updateOrCreate(
+            ['email' => 'admin@company.com'],
+            [
+                'name' => 'Admin IT',
+                'username' => 'admin',
+                'password' => Hash::make('password'),
+                'role' => 'admin'
+            ]
+        );
 
         // Supervisor account
-        User::create([
-            'name' => 'Supervisor IT',
-            'email' => 'supervisor@company.com',
-            'password' => Hash::make('password'),
-            'role' => 'supervisor'
-        ]);
+        User::updateOrCreate(
+            ['email' => 'supervisor@company.com'],
+            [
+                'name' => 'Supervisor IT',
+                'username' => 'supervisor',
+                'password' => Hash::make('password'),
+                'role' => 'supervisor'
+            ]
+        );
     }
 }

@@ -3,6 +3,10 @@
 @section('title', 'Add Loan')
 
 @section('content')
+<!-- SELECT2 CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-5-theme/1.3.0/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
 <div class="bg-white rounded-xl shadow border border-gray-200">
 
     <!-- HEADER -->
@@ -57,7 +61,7 @@
                     <select name="requester_name" id="requester_select" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-blue-200" onchange="updateDepartment()" required>
                         <option value="">-- Select Requester --</option>
                         @foreach($requesters as $requester)
-                            <option value="{{ $requester->requester_name }}" 
+                            <option value="{{ $requester->requester_name }}"
                                     data-department="{{ $requester->department }}"
                                     {{ old('requester_name') == $requester->requester_name ? 'selected' : '' }}>
                                 {{ $requester->requester_name }}
@@ -87,7 +91,7 @@
             <div>
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-semibold">Loaned Items</h3>
-                    <button type="button" onclick="addRow()"
+                    <button type="button" id="add-row-btn"
                             class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
                         + Add Item
                     </button>
@@ -116,13 +120,8 @@
                             <tr class="loan-row hover:bg-gray-50">
                                 <td class="px-4 py-3">
                                     <select name="items[0][item_id]" class="item-select w-full px-3 py-2 border rounded-lg text-sm"
-                                            data-item-index="0" onchange="updateStockInfo(this)" required>
+                                            data-item-index="0" style="width: 100%;" required>
                                         <option value="">-- Select Item --</option>
-                                        @foreach($items as $item)
-                                            <option value="{{ $item->id }}" data-stock="{{ $item->stock }}">
-                                                {{ $item->item_name }}
-                                            </option>
-                                        @endforeach
                                     </select>
                                 </td>
 
@@ -133,7 +132,7 @@
                                 <td class="px-4 py-3">
                                     <input type="number" name="items[0][quantity]" min="1"
                                            class="quantity-input w-full px-3 py-2 border rounded-lg text-sm text-center"
-                                           data-item-index="0" onchange="updateStockInfo(this)" required>
+                                           data-item-index="0" required>
                                 </td>
 
                                 <td class="px-4 py-3 text-center">
@@ -142,8 +141,7 @@
                                 </td>
 
                                 <td class="px-4 py-3 text-center">
-                                    <button type="button" onclick="removeRow(this)"
-                                            class="text-red-600 font-bold text-lg hover:text-red-800">
+                                    <button type="button" class="remove-row text-red-600 font-bold text-lg hover:text-red-800">
                                         ✕
                                     </button>
                                 </td>
@@ -169,47 +167,36 @@
     </div>
 </div>
 
-<script>
-// Auto-fill department dari requester
-function updateDepartment() {
-    const select = document.getElementById('requester_select');
-    const departmentInput = document.getElementById('department_input');
-    const selectedOption = select.options[select.selectedIndex];
-    const department = selectedOption.getAttribute('data-department');
-    
-    if (department) {
-        departmentInput.value = department;
-    } else {
-        departmentInput.value = '';
-    }
-}
+<!-- SELECT2 JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
-// Trigger auto-fill saat page load jika ada selected requester
+<script>
+let index = 1;
+const apiUrl = '{{ route("admin.api.items.search") }}';
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize SELECT2 untuk row pertama
+    initializeSelect2(document.querySelector('.item-select'));
+
+    // Setup event listener untuk row pertama
+    setupRowEventListeners(document.querySelector('.loan-row'));
+
+    // Trigger auto-fill department
     updateDepartment();
     validateForm();
-});
 
-let index = 1;
-const itemStocks = {
-    @foreach($items as $item)
-        {{ $item->id }}: {{ $item->stock }},
-    @endforeach
-};
+    // Add row button
+    document.getElementById('add-row-btn').addEventListener('click', function() {
+        const table = document.getElementById('items-table');
+        const row = document.createElement('tr');
+        row.className = 'loan-row hover:bg-gray-50';
 
-function addRow() {
-    const table = document.getElementById('items-table');
-    const row = `
-        <tr class="loan-row hover:bg-gray-50">
+        row.innerHTML = `
             <td class="px-4 py-3">
                 <select name="items[${index}][item_id]" class="item-select w-full px-3 py-2 border rounded-lg text-sm"
-                        data-item-index="${index}" onchange="updateStockInfo(this)" required>
+                        data-item-index="${index}" style="width: 100%;" required>
                     <option value="">-- Select Item --</option>
-                    @foreach($items as $item)
-                        <option value="{{ $item->id }}" data-stock="{{ $item->stock }}">
-                            {{ $item->item_name }}
-                        </option>
-                    @endforeach
                 </select>
             </td>
 
@@ -220,7 +207,7 @@ function addRow() {
             <td class="px-4 py-3">
                 <input type="number" name="items[${index}][quantity]" min="1"
                        class="quantity-input w-full px-3 py-2 border rounded-lg text-sm text-center"
-                       data-item-index="${index}" onchange="updateStockInfo(this)" required>
+                       data-item-index="${index}" required>
             </td>
 
             <td class="px-4 py-3 text-center">
@@ -229,27 +216,109 @@ function addRow() {
             </td>
 
             <td class="px-4 py-3 text-center">
-                <button type="button" onclick="removeRow(this)"
-                        class="text-red-600 font-bold text-lg hover:text-red-800">
+                <button type="button" class="remove-row text-red-600 font-bold text-lg hover:text-red-800">
                     ✕
                 </button>
             </td>
-        </tr>
-    `;
-    table.insertAdjacentHTML('beforeend', row);
-    index++;
-    validateForm();
+        `;
+
+        table.appendChild(row);
+
+        // Initialize SELECT2 untuk select baru
+        const newSelect = row.querySelector('.item-select');
+        initializeSelect2(newSelect);
+
+        // Setup event listeners untuk row baru
+        setupRowEventListeners(row);
+
+        index++;
+        validateForm();
+    });
+
+    // Event listeners untuk remove row
+    document.getElementById('items-table').addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-row')) {
+            e.preventDefault();
+            const row = e.target.closest('tr');
+            const select = row.querySelector('.item-select');
+            $(select).select2('destroy');
+            row.remove();
+            validateForm();
+        }
+    });
+});
+
+// Auto-fill department dari requester
+function updateDepartment() {
+    const select = document.getElementById('requester_select');
+    const departmentInput = document.getElementById('department_input');
+    const selectedOption = select.options[select.selectedIndex];
+    const department = selectedOption.getAttribute('data-department');
+
+    if (department) {
+        departmentInput.value = department;
+    } else {
+        departmentInput.value = '';
+    }
 }
 
-function removeRow(btn) {
-    btn.closest('tr').remove();
-    validateForm();
+function initializeSelect2(selectElement) {
+    $(selectElement).select2({
+        theme: 'bootstrap-5',
+        ajax: {
+            url: apiUrl,
+            dataType: 'json',
+            delay: 250,
+            data: function(params) {
+                return {
+                    q: params.term,
+                    exclude: getSelectedItems().join(',')
+                };
+            },
+            processResults: function(data) {
+                return {
+                    results: data.results.map(item => ({
+                        id: item.id,
+                        text: item.text + ' (Stock: ' + item.stock + ')',
+                        stock: item.stock,
+                        unit: item.unit,
+                        unit_id: item.unit_id
+                    }))
+                };
+            },
+            cache: true
+        },
+        minimumInputLength: 0,
+        placeholder: 'Select Item',
+        allowClear: true
+    });
 }
 
-function updateStockInfo(element) {
-    const row = element.closest('tr');
-    const itemIndex = element.dataset.itemIndex;
+function getSelectedItems() {
+    const selectedItems = [];
+    document.querySelectorAll('.item-select').forEach(select => {
+        if (select.value) selectedItems.push(select.value);
+    });
+    return selectedItems;
+}
+
+function setupRowEventListeners(row) {
     const itemSelect = row.querySelector('.item-select');
+    const quantityInput = row.querySelector('.quantity-input');
+
+    // Event untuk ubah item
+    $(itemSelect).on('select2:select', function(e) {
+        updateStockInfo(itemSelect);
+    });
+
+    // Event untuk ubah quantity
+    quantityInput.addEventListener('change', function() {
+        updateStockInfo(itemSelect);
+    });
+}
+
+function updateStockInfo(itemSelect) {
+    const row = itemSelect.closest('tr');
     const quantityInput = row.querySelector('.quantity-input');
     const stockSpan = row.querySelector('.stock-available');
     const statusBadge = row.querySelector('.status-badge');
@@ -262,7 +331,16 @@ function updateStockInfo(element) {
         return;
     }
 
-    const stock = parseInt(itemStocks[itemSelect.value]) || 0;
+    const data = $(itemSelect).select2('data');
+    if (!data || !data[0]) {
+        stockSpan.textContent = '-';
+        statusBadge.textContent = '-';
+        statusBadge.className = 'status-badge px-2 py-1 text-xs font-bold rounded-full bg-gray-200 text-gray-700';
+        validateForm();
+        return;
+    }
+
+    const stock = parseInt(data[0].stock) || 0;
     const quantity = parseInt(quantityInput.value) || 0;
 
     stockSpan.textContent = stock;
@@ -292,9 +370,12 @@ function validateForm() {
 
         if (!itemSelect.value || !quantityInput.value) return;
 
-        const stock = parseInt(itemStocks[itemSelect.value]) || 0;
+        const data = $(itemSelect).select2('data');
+        if (!data || !data[0]) return;
+
+        const stock = parseInt(data[0].stock) || 0;
         const quantity = parseInt(quantityInput.value) || 0;
-        const itemName = itemSelect.options[itemSelect.selectedIndex].text;
+        const itemName = data[0].text;
 
         if (quantity > stock) {
             hasError = true;
@@ -318,5 +399,6 @@ function validateForm() {
     }
 }
 </script>
+
 @endsection
 

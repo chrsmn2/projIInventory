@@ -42,12 +42,12 @@
                 </p>
             </div>
 
-            <div>
+            <!--<div>
                 <label class="block text-sm font-bold text-gray-700 mb-1">Supervisor</label>
                 <p class="text-lg font-semibold text-gray-700">
                     {{ $outgoing->supervisor?->name ?? '-' }}
                 </p>
-            </div>
+            </div>-->
 
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-1">Total Items</label>
@@ -74,10 +74,10 @@
                         <tr>
                             <th class="px-4 py-3 text-left font-bold text-gray-700">No</th>
                             <th class="px-4 py-3 text-left font-bold text-gray-700">Item Name</th>
-                            <th class="px-4 py-3 text-center font-bold text-gray-700">Item Code</th>
-                            <th class="px-4 py-3 text-left font-bold text-gray-700">Unit</th>
+                            <th class="px-4 py-3 text-center font-bold text-gray-700">Category</th>
+                            <th class="px-4 py-3 text-left font-bold text-gray-700">Quantity</th>
+                            <th class="px-4 py-3 text-center font-bold text-gray-700">Units</th>
                             <th class="px-4 py-3 text-center font-bold text-gray-700">Condition</th>
-                            <th class="px-4 py-3 text-center font-bold text-gray-700">Quantity</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y">
@@ -89,25 +89,25 @@
                             </td>
                             <td class="px-4 py-3 text-center">
                                 <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium">
-                                    {{ $detail->item?->item_code ?? '-' }}
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 text-gray-600">
-                                <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium">
-                                    {{ $detail->unit ?? '-' }}
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 text-center">
-                                <span class="px-2 py-1 rounded text-xs font-bold
-                                    @if($detail->condition == 'good') bg-green-100 text-green-700
-                                    @elseif($detail->condition == 'damaged') bg-red-100 text-red-700
-                                    @else bg-gray-200 text-gray-700 @endif">
-                                    {{ ucfirst($detail->condition) }}
+                                    {{ $detail->item?->category?->category_name ?? '-' }}
                                 </span>
                             </td>
                             <td class="px-4 py-3 text-center font-bold text-emerald-600">
                                 {{ $detail->quantity }}
                             </td>
+                            <td class="px-4 py-3 text-gray-600">
+                                <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium">
+                                    {{ $detail->item?->unit?->unit_name ?? '-' }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <span class="px-2 py-1 rounded text-xs font-bold
+                                    @if($detail->condition == 'normal') bg-green-100 text-green-700
+                                    @elseif($detail->condition == 'damaged') bg-red-100 text-red-700
+                                    @else bg-gray-200 text-gray-700 @endif">
+                                    {{ ucfirst($detail->condition) }}
+                                </span>
+                            </td> 
                         </tr>
                         @empty
                         <tr>
@@ -122,11 +122,11 @@
         <!-- BUTTONS -->
         <div class="flex gap-4 border-t pt-6">
             <a href="{{ route('admin.outgoing.edit', $outgoing->id) }}" 
-               class="px-6 py-2 bg-amber-500 text-black font-bold rounded-lg hover:bg-amber-600 transition">
-                Edit
+               class="px-6 py-2 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700">
+                Update
             </a>
             <a href="{{ route('admin.outgoing.index') }}" 
-               class="px-6 py-2 bg-gray-100 text-gray-600 font-bold rounded-lg hover:bg-gray-200 transition">
+               class="px-6 py-2 bg-gray-200 rounded-lg font-bold hover:bg-gray-300">
                 Back
             </a>
         </div>

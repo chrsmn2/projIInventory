@@ -8,123 +8,177 @@ use Illuminate\Http\Request;
 
 class SupplierController extends Controller
 {
+    /**
+     * Display a listing of suppliers
+     */
     public function index(Request $request)
     {
-        $search = $request->input('search','');
-        $perPage = $request->per_page ?? 10;
+        $search  = $request->string('search')->trim();
+        $perPage = $request->integer('per_page', 5);
+        $sortBy  = $request->get('sort_by', 'supplier_name');
+        $sortDir = $request->get('sort_dir', 'asc');
 
-        $suppliers = Supplier::where('supplier_name', 'like', "%$search%")
-        ->orWhere('supplier_code', 'like', "%$search%")
-        ->orderBy('supplier_name', 'asc')
-        ->paginate($perPage);
-        return view('admin.suppliers.index', compact('suppliers','search'));
+        $allowedSorts = ['supplier_code', 'supplier_name', 'created_at'];
+
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'supplier_name';
+        }
+
+        $suppliers = Supplier::query()
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('supplier_name', 'like', "%{$search}%")
+                        ->orWhere('supplier_code', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy($sortBy, $sortDir)
+            ->paginate($perPage)
+            ->withQueryString();
+
+        return view('admin.suppliers.index', compact(
+            'suppliers',
+            'search',
+            'perPage',
+            'sortBy',
+            'sortDir'
+        ));
     }
 
+    /**
+     * Show the form for creating a new supplier
+     */
     public function create()
     {
         return view('admin.suppliers.create');
     }
 
+    /**
+     * Store a newly created supplier in storage
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'supplier_name' => 'required|string|max:255|unique:suppliers,supplier_name',
-            'contact_phone' => 'required|string|max:20',
-            'contact_email' => 'required|email|max:255|unique:suppliers,contact_email',
-            'address' => 'required|string',
-            'status' => 'required|in:active,inactive',
-        ], [
-            'supplier_name.unique' => 'This supplier name already exists. Please choose a different name.',
-            'supplier_name.required' => 'Supplier name is required.',
-            'supplier_name.max' => 'Supplier name cannot exceed 255 characters.',
-            'contact_phone.required' => 'Contact phone is required.',
-            'contact_phone.max' => 'Contact phone cannot exceed 20 characters.',
-            'contact_email.required' => 'Contact email is required.',
-            'contact_email.email' => 'Please enter a valid email address.',
-            'contact_email.max' => 'Contact email cannot exceed 255 characters.',
-            'contact_email.unique' => 'This email is already registered. Please use a different email.',
-            'address.required' => 'Address is required.',
-            'status.required' => 'Please select supplier status.',
-            'status.in' => 'Invalid status selected.',
-        ]);
+        'supplier_name' => 'required|string|max:255|unique:suppliers,supplier_name',
+        'contact_phone' => 'required|string|max:20',
+        'contact_email' => 'required|email|max:255|unique:suppliers,contact_email',
+        'address'       => 'nullable|string',
+        'status'        => 'required|in:active,inactive',
+    ]);
 
-        $validated['is_active'] = ($request->condition === 'normal') ? 1 : 0;
 
-        // 2. TENTUKAN PREFIX PERMANEN
+        // ===== Generate Supplier Code (VEN-001) =====
         $prefix = 'VEN-';
 
-        // 3. CARI NOMOR URUT TERAKHIR
-        // Mengambil supplier dengan kode berawalan VEN yang urutannya paling besar
         $lastSupplier = Supplier::where('supplier_code', 'like', $prefix . '%')
             ->orderBy('supplier_code', 'desc')
             ->first();
 
-        if ($lastSupplier) {
-            // Mengambil angka setelah 'VEN' (karakter ke-4 dan seterusnya)
-            $lastNumber = intval(substr($lastSupplier->supplier_code, 4));
-            $nextNumber = $lastNumber + 1;
-        } else {
-            // Jika belum ada data sama sekali di database
-            $nextNumber = 1;
-        }
+        $nextNumber = $lastSupplier
+            ? intval(substr($lastSupplier->supplier_code, 4)) + 1
+            : 1;
 
-        // 4. FORMAT MENJADI 6 KARAKTER (VEN + 001)
-        $finalCode = $prefix . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        $supplierCode = $prefix . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
 
         Supplier::create([
-            'supplier_code' => $finalCode,
-            'supplier_name' => $request->supplier_name,
-            'contact_phone' => $request->contact_phone,
-            'contact_email' => $request->contact_email,
-            'address' => $request->address,
-            'status' => $request->status,
+            'supplier_code' => $supplierCode,
+            'supplier_name' => $validated['supplier_name'],
+            'contact_phone' => $validated['contact_phone'],
+            'contact_email' => $validated['contact_email'],
+            'address'       => $validated['address'],
+            'status'        => $validated['status'],
         ]);
 
         return redirect()
             ->route('admin.suppliers.index')
-            ->with('success', 'Vendors added successfully');
+            ->with('success', '✓ Vendor added successfully');
     }
 
+    /**
+     * Show the form for editing the specified supplier
+     */
     public function edit(Supplier $supplier)
     {
         return view('admin.suppliers.edit', compact('supplier'));
     }
 
+    /**
+     * Update the specified supplier in storage
+     */
     public function update(Request $request, Supplier $supplier)
     {
         $validated = $request->validate([
-            'supplier_name' => 'required|string|max:255|unique:suppliers,supplier_name,' . $supplier->id,
-            'contact_phone' => 'required|string|max:20',
-            'contact_email' => 'required|email|max:255|unique:suppliers,contact_email,' . $supplier->id,
-            'address' => 'required|string',
-            'status' => 'required|in:active,inactive',
-        ], [
-            'supplier_name.unique' => 'This supplier name already exists.',
-            'contact_email.unique' => 'This email is already registered.',
-            'contact_phone.required' => 'Phone number is required.',
-            'contact_email.required' => 'Email is required.',
+            'supplier_name'  => 'required|string|max:255|unique:suppliers,supplier_name,' . $supplier->id,
+            'contact_phone'  => 'required|string|max:20',
+            'contact_email'  => 'required|email|max:255|unique:suppliers,contact_email,' . $supplier->id,
+            'address'        => 'required|string',
+            'status'         => 'required|in:active,inactive',
         ]);
 
-        // Konversi input radio 'condition' ke kolom 'is_active'
-        $validated['is_active'] = ($request->condition === 'normal') ? 1 : 0;
+        $supplier->update($validated);
 
-        $supplier->update([
-            'supplier_name' => $request->supplier_name,
-            'contact_phone' => $request->contact_phone,
-            'contact_email' => $request->contact_email,
-            'address' => $request->address,
-            'status' => $request->status,
-        ]);
-
-        return redirect()->route('admin.suppliers.index')
-                         ->with('success', '✓ Vendors updated successfully!');
+        return redirect()
+            ->route('admin.suppliers.index')
+            ->with('success', '✓ Vendor updated successfully');
     }
 
+    /**
+     * Remove the specified supplier from storage
+     */
     public function destroy(Supplier $supplier)
     {
         $supplier->delete();
 
-        return redirect()->route('admin.suppliers.index')
-                         ->with('success', '✓ Vendors deleted successfully!');
+        return redirect()
+            ->route('admin.suppliers.index')
+            ->with('success', '✓ Vendor deleted successfully');
+    }
+
+    /**
+     * AJAX Select2 - Search Suppliers
+     */
+    public function searchSuppliers(Request $request)
+    {
+        $search = $request->input('q', '');
+
+        $suppliers = Supplier::where('status', 'active')
+            ->when($search, function ($q) use ($search) {
+                $q->where('supplier_name', 'like', "%{$search}%")
+                  ->orWhere('supplier_code', 'like', "%{$search}%");
+            })
+            ->orderBy('supplier_name')
+            ->limit(20)
+            ->get();
+
+        return response()->json([
+            'results' => $suppliers->map(function ($supplier) {
+                return [
+                    'id'   => $supplier->id,
+                    'text' => $supplier->supplier_name,
+                    'code' => $supplier->supplier_code,
+                ];
+            })
+        ]);
+    }
+
+    /**
+     * AJAX check supplier name (real-time validation)
+     */
+    public function checkSupplierName(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string',
+            'id'   => 'nullable|integer',
+        ]);
+
+        $exists = Supplier::where('supplier_name', $request->name)
+            ->when($request->id, fn ($q) => $q->where('id', '!=', $request->id))
+            ->exists();
+
+        return response()->json([
+            'exists' => $exists,
+            'message' => $exists
+                ? 'Vendor name already exists. Please choose a different name.'
+                : 'Vendor name available.',
+        ]);
     }
 }

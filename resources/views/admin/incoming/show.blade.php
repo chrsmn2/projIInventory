@@ -80,14 +80,14 @@
                                 {{ $detail->item?->item_name ?? '-' }}
                             </td>
                             <td class="px-4 py-3 text-gray-600">
-                                {{ $detail->item?->category?->name ?? '-' }}
+                                {{ $detail->item?->category?->category_name ?? '-' }}
                             </td>
                             <td class="px-4 py-3 text-center font-bold text-emerald-600">
                                 {{ $detail->quantity }}
                             </td>
                             <td class="px-4 py-3 text-gray-600">
                                 <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium">
-                                    {{ $detail->item?->unit?->name ?? '-' }}
+                                    {{ $detail->item?->unit?->unit_name ?? '-' }}
                                 </span>
                             </td>
                         </tr>
@@ -104,11 +104,11 @@
         <!-- BUTTONS -->
         <div class="flex gap-4 border-t pt-6">
             <a href="{{ route('admin.incoming.edit', $incoming->id) }}" 
-               class="px-6 py-2 bg-amber-500 text-black font-bold rounded-lg hover:bg-green-600 transition">
+               class="px-6 py-2 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700">
                 Update
             </a>
             <a href="{{ route('admin.incoming.index') }}" 
-               class="px-6 py-2 bg-gray-100 text-gray-600 font-bold rounded-lg hover:bg-gray-500 transition">
+               class="px-6 py-2 bg-gray-200 rounded-lg font-bold hover:bg-gray-300">
                 Back
             </a>
         </div>

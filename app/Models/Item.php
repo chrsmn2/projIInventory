@@ -48,4 +48,14 @@ class Item extends Model
     {
         return $this->hasMany(LoanDetail::class, 'item_id');
     }
+
+        public function conditionBadge()
+    {
+        return match (strtolower(trim($this->condition))) {
+            'good'   => 'bg-green-100 text-green-800',
+            'damaged'  => 'bg-red-100 text-red-800',
+            default    => 'bg-yellow-100 text-yellow-800',
+        };
+    }
+
 }

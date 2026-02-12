@@ -13,13 +13,13 @@
     @if ($role === 'admin')
 
         <!-- Dashboard Analitik -->
-        <a href="{{ route('admin.dashboard') }}" 
+        <a href="{{ route('admin.dashboard') }}"
            class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-100 hover:bg-gray-700 transition font-medium
                   {{ request()->routeIs('admin.dashboard') ? 'bg-gray-700' : '' }}">
             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-3m0 0l7-4 7 4M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9m-9 16l4-4m-9-5l-2-3m0 0l-7-4 7-4"/>
             </svg>
-            <span class="text-sm">Dashboard Analitik</span>
+            <span class="text-sm">Dashboard</span>
         </a>
         <hr class="border-gray-700 my-4">
 
@@ -34,13 +34,13 @@
                     </svg>
                     <span class="text-sm">Master Data</span>
                 </div>
-                <svg class="w-4 h-4 transition transform flex-shrink-0" :class="{ 'rotate-180': open }" 
+                <svg class="w-4 h-4 transition transform flex-shrink-0" :class="{ 'rotate-180': open }"
                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
                 </svg>
             </button>
             <div x-show="open" x-transition class="ml-4 mt-2 space-y-1.5 border-l border-gray-600 pl-3">
-                <a href="{{ route('admin.categories.index') }}" 
+                <a href="{{ route('admin.categories.index') }}"
                    class="flex items-center gap-2 px-3 py-2 text-xs text-gray-300 rounded hover:bg-gray-700 hover:text-white transition
                           {{ request()->routeIs('admin.categories.*') ? 'bg-gray-700 text-white' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -48,7 +48,7 @@
                     </svg>
                     Categories
                 </a>
-                <a href="{{ route('admin.units.index') }}" 
+                <a href="{{ route('admin.units.index') }}"
                    class="flex items-center gap-2 px-3 py-2 text-xs text-gray-300 rounded hover:bg-gray-700 hover:text-white transition
                           {{ request()->routeIs('admin.units.*') ? 'bg-gray-700 text-white' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,7 +56,7 @@
                     </svg>
                     Units
                 </a>
-                <a href="{{ route('admin.items.index') }}" 
+                <a href="{{ route('admin.items.index') }}"
                    class="flex items-center gap-2 px-3 py-2 text-xs text-gray-300 rounded hover:bg-gray-700 hover:text-white transition
                           {{ request()->routeIs('admin.items.*') ? 'bg-gray-700 text-white' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,7 +64,7 @@
                     </svg>
                     Items
                 </a>
-                <a href="{{ route('admin.departement.index') }}" 
+                <a href="{{ route('admin.departement.index') }}"
                    class="flex items-center gap-2 px-3 py-2 text-xs text-gray-300 rounded hover:bg-gray-700 hover:text-white transition
                           {{ request()->routeIs('admin.departement.*') ? 'bg-gray-700 text-white' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,7 +72,7 @@
                     </svg>
                     Departement
                 </a>
-                <a href="{{ route('admin.suppliers.index') }}" 
+                <a href="{{ route('admin.suppliers.index') }}"
                    class="flex items-center gap-2 px-3 py-2 text-xs text-gray-300 rounded hover:bg-gray-700 hover:text-white transition
                           {{ request()->routeIs('admin.suppliers.*') ? 'bg-gray-700 text-white' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,13 +95,13 @@
                     </svg>
                     <span class="text-sm">Transactions</span>
                 </div>
-                <svg class="w-4 h-4 transition transform flex-shrink-0" :class="{ 'rotate-180': open }" 
+                <svg class="w-4 h-4 transition transform flex-shrink-0" :class="{ 'rotate-180': open }"
                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
                 </svg>
             </button>
             <div x-show="open" x-transition class="ml-4 mt-2 space-y-1.5 border-l border-gray-600 pl-3">
-                <a href="{{ route('admin.incoming.index') }}" 
+                <a href="{{ route('admin.incoming.index') }}"
                    class="flex items-center gap-2 px-3 py-2 text-xs text-gray-300 rounded hover:bg-gray-700 hover:text-white transition
                           {{ request()->routeIs('admin.incoming.*') ? 'bg-gray-700 text-white' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,7 +109,7 @@
                     </svg>
                     Incoming Items
                 </a>
-                <a href="{{ route('admin.outgoing.index') }}" 
+                <a href="{{ route('admin.outgoing.index') }}"
                    class="flex items-center gap-2 px-3 py-2 text-xs text-gray-300 rounded hover:bg-gray-700 hover:text-white transition
                           {{ request()->routeIs('admin.outgoing.*') ? 'bg-gray-700 text-white' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -132,25 +132,34 @@
                     </svg>
                     <span class="text-sm">Reports</span>
                 </div>
-                <svg class="w-4 h-4 transition transform flex-shrink-0" :class="{ 'rotate-180': open }" 
+                <svg class="w-4 h-4 transition transform flex-shrink-0" :class="{ 'rotate-180': open }"
                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
                 </svg>
             </button>
             <div x-show="open" x-transition class="ml-4 mt-2 space-y-1.5 border-l border-gray-600 pl-3">
-                <!--<a href="{{ route('admin.loans.index') }}" 
+                <!--<a href="{{ route('admin.loans.index') }}"
                    class="flex items-center gap-2 px-3 py-2 text-xs text-gray-300 rounded hover:bg-gray-700 hover:text-white transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                     Loan Management
                 </a>-->
-                <a href="{{ route('admin.reports.stock') }}" 
-                   class="flex items-center gap-2 px-3 py-2 text-xs text-gray-300 rounded hover:bg-gray-700 hover:text-white transition">
+                <a href="{{ route('admin.reports.stock') }}"
+                   class="flex items-center gap-2 px-3 py-2 text-xs text-gray-300 rounded hover:bg-gray-700 hover:text-white transition
+                          {{ request()->routeIs('admin.reports.stock') ? 'bg-gray-700 text-white' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                     </svg>
                     Stock Report
+                </a>
+                <a href="{{ route('admin.reports.movement') }}"
+                   class="flex items-center gap-2 px-3 py-2 text-xs text-gray-300 rounded hover:bg-gray-700 hover:text-white transition
+                          {{ request()->routeIs('admin.reports.movement') ? 'bg-gray-700 text-white' : '' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                    </svg>
+                    Transaction Report
                 </a>
             </div>
         </div>
@@ -169,13 +178,13 @@
                     </svg>
                     <span class="text-sm">Profile</span>
                 </div>
-                <svg class="w-4 h-4 transition transform flex-shrink-0" :class="{ 'rotate-180': open }" 
+                <svg class="w-4 h-4 transition transform flex-shrink-0" :class="{ 'rotate-180': open }"
                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
                 </svg>
             </button>
             <div x-show="open" x-transition class="ml-4 mt-2 space-y-1.5 border-l border-gray-600 pl-3">
-                <a href="{{ route('admin.profile.edit') }}" 
+                <a href="{{ route('admin.profile.edit') }}"
                    class="flex items-center gap-2 px-3 py-2 text-xs text-gray-300 rounded hover:bg-gray-700 hover:text-white transition
                           {{ request()->routeIs('admin.profile.*') ? 'bg-gray-700 text-white' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,7 +199,7 @@
         <!-- Logout -->
         <form action="{{ route('logout') }}" method="POST" class="block">
             @csrf
-            <button type="submit" 
+            <button type="submit"
                     class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-100 hover:bg-red-700 transition font-medium text-left">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
@@ -202,7 +211,7 @@
     @elseif ($role === 'supervisor')
 
         <!-- Dashboard -->
-        <a href="{{ route('supervisor.dashboard') }}" 
+        <a href="{{ route('supervisor.dashboard') }}"
            class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-100 hover:bg-gray-700 transition font-medium
                   {{ request()->routeIs('supervisor.dashboard') ? 'bg-gray-700' : '' }}">
             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -222,13 +231,13 @@
                     </svg>
                     <span class="text-sm">Approval</span>
                 </div>
-                <svg class="w-4 h-4 transition transform flex-shrink-0" :class="{ 'rotate-180': open }" 
+                <svg class="w-4 h-4 transition transform flex-shrink-0" :class="{ 'rotate-180': open }"
                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
                 </svg>
             </button>
             <div x-show="open" x-transition class="ml-4 mt-2 space-y-1.5 border-l border-gray-600 pl-3">
-                <a href="{{ route('supervisor.loan-approvals.index') }}" 
+                <a href="{{ route('supervisor.loan-approvals.index') }}"
                    class="flex items-center gap-2 px-3 py-2 text-xs text-gray-300 rounded hover:bg-gray-700 hover:text-white transition
                           {{ request()->routeIs('supervisor.loan-approvals.*') ? 'bg-gray-700 text-white' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -250,13 +259,13 @@
                     </svg>
                     <span class="text-sm">Monitoring</span>
                 </div>
-                <svg class="w-4 h-4 transition transform flex-shrink-0" :class="{ 'rotate-180': open }" 
+                <svg class="w-4 h-4 transition transform flex-shrink-0" :class="{ 'rotate-180': open }"
                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
                 </svg>
             </button>
             <div x-show="open" x-transition class="ml-4 mt-2 space-y-1.5 border-l border-gray-600 pl-3">
-                <a href="{{ route('supervisor.stock.index') }}" 
+                <a href="{{ route('supervisor.stock.index') }}"
                    class="flex items-center gap-2 px-3 py-2 text-xs text-gray-300 rounded hover:bg-gray-700 hover:text-white transition
                           {{ request()->routeIs('supervisor.stock.*') ? 'bg-gray-700 text-white' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -264,14 +273,14 @@
                     </svg>
                     Stock Overview
                 </a>
-                <a href="{{ route('supervisor.stock.low') }}" 
+                <a href="{{ route('supervisor.stock.low') }}"
                    class="flex items-center gap-2 px-3 py-2 text-xs text-gray-300 rounded hover:bg-gray-700 hover:text-white transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 2v2m0 2v2m0-8a4 4 0 110-8 4 4 0 010 8z"/>
                     </svg>
                     Low Stock Alert
                 </a>
-                <a href="{{ route('supervisor.loan.monitor') }}" 
+                <a href="{{ route('supervisor.loan.monitor') }}"
                    class="flex items-center gap-2 px-3 py-2 text-xs text-gray-300 rounded hover:bg-gray-700 hover:text-white transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -293,20 +302,20 @@
                     </svg>
                     <span class="text-sm">Report</span>
                 </div>
-                <svg class="w-4 h-4 transition transform flex-shrink-0" :class="{ 'rotate-180': open }" 
+                <svg class="w-4 h-4 transition transform flex-shrink-0" :class="{ 'rotate-180': open }"
                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
                 </svg>
             </button>
             <div x-show="open" x-transition class="ml-4 mt-2 space-y-1.5 border-l border-gray-600 pl-3">
-                <a href="{{ route('supervisor.reports.loan') }}" 
+                <a href="{{ route('supervisor.reports.loan') }}"
                    class="flex items-center gap-2 px-3 py-2 text-xs text-gray-300 rounded hover:bg-gray-700 hover:text-white transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                     Loan Report
                 </a>
-                <a href="{{ route('supervisor.reports.stock') }}" 
+                <a href="{{ route('supervisor.reports.stock') }}"
                    class="flex items-center gap-2 px-3 py-2 text-xs text-gray-300 rounded hover:bg-gray-700 hover:text-white transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
@@ -319,7 +328,7 @@
         <hr class="border-gray-700 my-4">
 
         <!-- Profile -->
-        <a href="{{ route('profile.edit') }}" 
+        <a href="{{ route('profile.edit') }}"
            class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-100 hover:bg-gray-700 transition font-medium
                   {{ request()->routeIs('profile.*') ? 'bg-gray-700' : '' }}">
             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -331,7 +340,7 @@
         <!-- Logout -->
         <form action="{{ route('logout') }}" method="POST" class="block">
             @csrf
-            <button type="submit" 
+            <button type="submit"
                     class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-100 hover:bg-red-700 transition font-medium text-left">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>

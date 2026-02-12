@@ -12,9 +12,9 @@ class Category extends Model
     protected $table = 'categories';
 
     protected $fillable = [
-        'code',
-        'name',
-        'description',
+        'category_code',
+        'category_name',
+        'category_description',
     ];
 
     // Relasi

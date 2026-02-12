@@ -24,27 +24,13 @@ class RegisteredUserController extends Controller
 
     /**
      * Handle an incoming registration request.
+     * Registration is disabled in this system. Use admin provisioning only.
      *
      * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        event(new Registered($user));
-
-        Auth::login($user);
-
-        return redirect(route('dashboard', absolute: false));
+        // Registration endpoint is disabled - redirect to login
+        return redirect(route('login'))->with('error', 'Pendaftaran otomatis tidak tersedia. Hubungi Administrator untuk membuat akun baru.');
     }
 }

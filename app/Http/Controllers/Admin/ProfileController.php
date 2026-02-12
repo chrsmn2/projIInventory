@@ -75,7 +75,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Delete the admin's account
+     * Delete the admin's account (soft delete)
      */
     public function destroy(Request $request)
     {
@@ -89,11 +89,23 @@ class ProfileController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
+        // Prevent deleting the last admin
+        $adminCount = User::where('role', 'admin')->count();
+        if ($adminCount <= 1) {
+            return redirect()->route('admin.profile.edit')
+                ->with('error', 'Tidak boleh menghapus admin terakhir. Sistem harus memiliki minimal satu admin.');
+        }
+
         // Delete profile photo if exists
         if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
             Storage::disk('public')->delete($user->profile_photo);
         }
 
+        // Log the deletion action (optional)
+        Log::info("Admin account deleted (soft delete): {$user->name} ({$user->email})");
+
+        // Soft delete the user (using SoftDeletes trait)
+        // Data di incoming_items dan outgoing_items tetap aman karena FK tidak cascade
         $user->delete();
 
         auth()->guard()->logout();
@@ -101,7 +113,7 @@ class ProfileController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/')->with('status', 'Akun berhasil dihapus.');
+        return redirect('/')->with('status', 'Akun berhasil dihapus. Data transaksi tetap tersimpan untuk audit trail.');
     }
 }
   

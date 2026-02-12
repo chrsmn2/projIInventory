@@ -47,11 +47,11 @@
             </div>
 
             <div class="sm:w-48">
-                <form method="GET" action="{{ route('admin.requesters.index') }}">
+                <form method="GET" id="perPageForm" action="{{ route('admin.requesters.index') }}">
                     @if(request('search'))
                         <input type="hidden" name="search" value="{{ request('search') }}">
                     @endif
-                    <select name="per_page" onchange="this.form.submit()"
+                    <select name="per_page" onchange="document.getElementById('perPageForm').submit();"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         @foreach([5,10,25,50] as $size)
                             <option value="{{ $size }}" {{ request('per_page') == $size ? 'selected' : '' }}>

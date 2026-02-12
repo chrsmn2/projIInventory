@@ -9,15 +9,16 @@ class Departement extends Model
 {
     use HasFactory;
     protected $table = 'departement';
-        
+
     protected $fillable = [
         'code_dept',
         'departement_name',
-        'is_active',
+        'status',
+        'description',
     ];
 
     public function requesters()
-    {   
+    {
         return $this->hasMany(Requester::class, 'departement_id');
     }
 }
